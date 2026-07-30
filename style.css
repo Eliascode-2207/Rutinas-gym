@@ -516,3 +516,72 @@ body.dark-mode .styled-input {
 body.dark-mode .styled-input::placeholder {
     color: #64748b !important;
 }
+
+/* --- AJUSTE RESPONSIVO PARA EL RESUMEN EN CELULARES --- */
+#sub-plan {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    word-break: break-word;
+}
+
+/* --- CORRECCIÓN DEFINITIVA PARA EL CRONÓMETRO FLOTANTE EN CELULAR --- */
+#cronometro-box {
+    position: fixed;
+    top: 15px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    max-width: 350px;
+    background: #1e293b;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+    border-radius: 50px;
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 9999;
+}
+
+/* Modo claro para el cronómetro flotante */
+body:not(.dark-mode) #cronometro-box {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+}
+
+.cronometro-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.cronometro-info .material-icons {
+    color: #3b82f6;
+    font-size: 1.8rem;
+}
+
+.cronometro-info small {
+    display: block;
+    font-size: 0.75rem;
+    color: #94a3b8;
+}
+
+#tiempo-restante {
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.btn-close-timer {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: inherit;
+    opacity: 0.7;
+    padding: 5px;
+}
+
+.btn-close-timer:hover {
+    opacity: 1;
+}

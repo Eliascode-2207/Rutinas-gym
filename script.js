@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 2. GENERADOR DE RUTINAS CON DATOS CORPORALES ---
+    // --- 2. GENERADOR DE RUTINAS CON DATOS CORPORALES Y NUTRICIÓN ---
     if(formRutina) {
         formRutina.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -55,11 +55,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const alturaMetros = altura / 100;
             const imc = (peso / (alturaMetros * alturaMetros)).toFixed(1);
             
-            // Definir estado de peso según IMC
+            // Definir estado de peso según IMC y su recomendación nutricional
             let estadoImc = "Peso normal";
-            if (imc < 18.5) estadoImc = "Bajo peso";
-            else if (imc >= 25 && imc < 30) estadoImc = "Sobrepeso";
-            else if (imc >= 30) estadoImc = "Obesidad";
+            let consejoNutricional = "";
+
+            if (imc < 18.5) {
+                estadoImc = "Bajo peso";
+                consejoNutricional = "Para ganar masa de forma saludable, enfócate en un superávit calórico. Acompaña tu rutina con alimentos ricos en proteínas magras (pollo, pescado, huevos), carbohidratos complejos (arroz, avena, papa) y grasas saludables (aguacate, frutos secos, aceite de oliva) para apoyar el crecimiento muscular.";
+            } else if (imc >= 25 && imc < 30) {
+                estadoImc = "Sobrepeso";
+                consejoNutricional = "Para optimizar la pérdida de grasa, busca un ligero déficit calórico priorizando alimentos saciantes. Consume abundantes vegetales, proteínas de alta calidad para cuidar tu músculo (pechuga, claras, legumbres) y carbohidratos integrales en porciones moderadas. Evita azúcares refinados y bebe mucha agua.";
+            } else if (imc >= 30) {
+                estadoImc = "Obesidad";
+                consejoNutricional = "Es ideal un enfoque enfocado en alimentos reales y nutritivos sin pasar hambre extrema. Aumenta el consumo de fibra con verduras y frutas de bajo índice glucémico, fuentes limpias de proteína en cada comida y mantén una hidratación constante para potenciar la quema de grasa y proteger tus articulaciones.";
+            } else {
+                consejoNutricional = "¡Estás en un peso saludable! Mantén una dieta equilibrada que mantenga tu energía: combina carbohidratos complejos, buenas porciones de proteína en cada comida, grasas saludables y vegetales variados para rendir al máximo en tus entrenamientos.";
+            }
 
             // Textos descriptivos para el plan
             const nombresObjetivo = {
@@ -70,9 +81,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if(tituloPlan) tituloPlan.textContent = `Plan: ${nombresObjetivo[objetivo]}`;
             
-            // Subtítulo actualizado incluyendo Peso, Altura, Edad e IMC
+            // Subtítulo con Edad, Peso, Altura e IMC
             if(subPlan) {
                 subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | IMC: ${imc} (${estadoImc}) | ${dias} Días por semana`;
+            }
+
+            // Mostrar recomendación nutricional
+            const nutricionTexto = document.getElementById('nutricion-texto');
+            if(nutricionTexto) {
+                nutricionTexto.textContent = consejoNutricional;
             }
 
             // Generar estructura de días y ejercicios
@@ -126,13 +143,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 4. FUNCIONES DE APOYO PARA RUTINAS ---
+    // --- 4. BANCO DE EJERCICIOS ---
     function obtenerEjerciciosPorObjetivo(objetivo, dias) {
         const banco = {
             musculo: [
                 { nombre: "Press de Banca con Barra", desc: "Acuéstate en el banco plano, sujeta la barra un poco más abierta que tus hombros, baja de forma controlada al pecho y empuja con fuerza hacia arriba.", series: 4, reps: "8-10" },
                 { nombre: "Sentadilla Libre", desc: "Coloca la barra sobre la parte alta de la espalda, mantén el core apretado, baja la cadera hacia atrás como si fueras a sentarte y sube.", series: 4, reps: "8-12" },
-                { nombre: "Dominadas en Barra", desc: "Sujeta la barra con las manos hacia el frente, cuelga con los brazos extendidos y elvíntate hasta pasar la barbilla por encima de la barra.", series: 3, reps: "8-10" },
+                { nombre: "Dominadas en Barra", desc: "Sujeta la barra con las manos hacia el frente, cuelga con los brazos extendidos y elévate hasta pasar la barbilla por encima de la barra.", series: 3, reps: "8-10" },
                 { nombre: "Press Militar con Mancuernas", desc: "Sentado o de pie, sostén las mancuernas a la altura de los hombros y presiona verticalmente hacia arriba sin arquear la espalda.", series: 3, reps: "10-12" },
                 { nombre: "Curl de Bíceps con Barra Z", desc: "De pie, sujeta la barra con agarre supino y flexiona los codos contrayendo los bíceps sin mover el tronco.", series: 3, reps: "12" },
                 { nombre: "Extensiones de Tríceps en Polea", desc: "Agarra el mango de la polea alta, mantén los codos fijos a los costados y empuja hacia abajo extendiendo los brazos.", series: 3, reps: "12" }
@@ -207,11 +224,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO ---
+    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO (CON SCROLL AL INICIO ADAPTADO A MÓVIL) ---
     function iniciarCronometro(segundos) {
         detenerCronometro();
         if(cronometroBox) cronometroBox.classList.remove('oculto');
         
+        // Forzar scroll arriba de manera compatible con móviles y PC
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 0;
+
+        // Forzar desplazamiento directo al título del plan arriba para asegurar el scroll en móviles
+        const tituloPlanElement = document.getElementById('titulo-plan');
+        if (tituloPlanElement) {
+            tituloPlanElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         let tiempoRestando = segundos;
         actualizarTextoTimer(tiempoRestando);
 
