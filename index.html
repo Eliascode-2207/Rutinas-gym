@@ -19,11 +19,26 @@
             <div class="card-header">
                 <span class="material-icons header-icon">fitness_center</span>
                 <h2>Power Gym</h2>
-                <p class="subtitulo">Diseña tu plan de entrenamiento ideal en segundos.</p>
+                <p class="subtitulo">Diseña tu plan de entrenamiento ideal con tus datos corporales.</p>
             </div>
 
-            <!-- Formulario -->
+            <!-- Formulario con datos corporales y opciones -->
             <form id="form-rutina">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="peso">Peso (kg)</label>
+                        <input type="number" id="peso" class="styled-input" placeholder="Ej. 70" required min="30" max="250">
+                    </div>
+                    <div class="form-group">
+                        <label for="altura">Altura (cm)</label>
+                        <input type="number" id="altura" class="styled-input" placeholder="Ej. 175" required min="100" max="230">
+                    </div>
+                    <div class="form-group">
+                        <label for="edad">Edad</label>
+                        <input type="number" id="edad" class="styled-input" placeholder="Ej. 25" required min="10" max="100">
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label for="objetivo">
                         <span class="material-icons input-icon">track_changes</span>
@@ -75,7 +90,7 @@
                 </div>
 
                 <div id="lista-rutinas" class="lista-rutinas">
-                    <!-- Los días se inyectan aquí -->
+                    <!-- Los días y ejercicios se inyectarán aquí -->
                 </div>
 
                 <button id="btn-regresar" class="btn-secundario">
@@ -85,6 +100,21 @@
             </div>
         </div>
         <footer>Creado con energía por Power Gym © 2026</footer>
+    </div>
+
+    <!-- MODAL DE GUÍA DE EJERCICIOS -->
+    <div id="modal-ejercicio" class="modal oculto">
+        <div class="modal-content">
+            <span id="cerrar-modal" class="cerrar-modal">&times;</span>
+            <h3 id="modal-titulo">Nombre del Ejercicio</h3>
+            <div class="modal-body">
+                <div class="modal-img-placeholder">
+                    <span class="material-icons large-icon">fitness_center</span>
+                    <p>Guía de postura correcta</p>
+                </div>
+                <p id="modal-descripcion">Explicación detallada de la técnica y postura.</p>
+            </div>
+        </div>
     </div>
 
     <script src="script.js"></script>

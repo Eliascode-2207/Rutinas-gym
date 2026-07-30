@@ -440,3 +440,32 @@ footer {
     50% { transform: scale(1.15); }
     100% { transform: scale(1); }
 }
+
+/* --- ESTILOS CORREGIDOS Y SEPARADOS PARA LOS CAMPOS --- */
+.form-row {
+    display: flex !important;
+    gap: 12px !important;
+    margin-bottom: 16px !important;
+    width: 100% !important;
+}
+
+.form-row .form-group {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.styled-input {
+    width: 100% !important;
+    background-color: #0f172a !important;
+    border: 1px solid var(--border-color, #334155) !important;
+    color: var(--text-color, #f8fafc) !important;
+    padding: 10px 8px !important;
+    border-radius: 8px !important;
+    font-size: 0.9rem !important;
+    outline: none !important;
+    box-sizing: border-box !important;
+}
+
+.styled-input:focus {
+    border-color: var(--accent-color, #38bdf8) !important;
+}
