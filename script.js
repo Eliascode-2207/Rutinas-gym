@@ -1,46 +1,201 @@
 document.addEventListener('DOMContentLoaded', () => {
+    // Referencias generales
     const formRutina = document.getElementById('form-rutina');
     const resultadoContainer = document.getElementById('resultado-container');
-    const listaRutinas = document.getElementById('lista-rutinas');
     const btnRegresar = document.getElementById('btn-regresar');
+    const listaRutinas = document.getElementById('lista-rutinas');
     const tituloPlan = document.getElementById('titulo-plan');
     const subPlan = document.getElementById('sub-plan');
+
+    // MODO OSCURO / CLARO
     const btnModoOscuro = document.getElementById('btn-modo-oscuro');
     const iconoTheme = document.getElementById('icono-theme');
-
-    // Elementos del Modal
-    const modalEjercicio = document.getElementById('modal-ejercicio');
-    const cerrarModal = document.getElementById('cerrar-modal');
-    const modalTitulo = document.getElementById('modal-titulo');
-    const modalDescripcion = document.getElementById('modal-descripcion');
-
-    // Elementos del Cronómetro
-    const cronometroBox = document.getElementById('cronometro-box');
-    const tiempoRestante = document.getElementById('tiempo-restante');
-    const btnCancelarTimer = document.getElementById('btn-cancelar-timer');
-    let temporizador = null;
-
-    // --- 1. MODO OSCURO ---
-    if (localStorage.getItem('theme') === 'dark') {
-        document.body.classList.add('dark-mode');
-        if(iconoTheme) iconoTheme.textContent = 'light_mode';
+    
+    if (localStorage.getItem('theme') === 'light') {
+        document.body.classList.add('light-mode');
+        document.documentElement.classList.add('light-mode');
+        if (iconoTheme) iconoTheme.textContent = 'light_mode';
     }
 
-    if(btnModoOscuro) {
-        btnModoOscuro.addEventListener('click', () => {
-            document.body.classList.toggle('dark-mode');
-            if (document.body.classList.contains('dark-mode')) {
-                localStorage.setItem('theme', 'dark');
-                if(iconoTheme) iconoTheme.textContent = 'light_mode';
-            } else {
-                localStorage.setItem('theme', 'light');
-                if(iconoTheme) iconoTheme.textContent = 'dark_mode';
+    if (btnModoOscuro) {
+        btnModoOscuro.addEventListener('click', (e) => {
+            e.preventDefault();
+            document.body.classList.toggle('light-mode');
+            document.documentElement.classList.toggle('light-mode');
+            
+            const isLight = document.body.classList.contains('light-mode');
+            localStorage.setItem('theme', isLight ? 'light' : 'dark');
+            
+            if (iconoTheme) {
+                iconoTheme.textContent = isLight ? 'light_mode' : 'dark_mode';
             }
         });
     }
 
-    // --- 2. GENERADOR DE RUTINAS CON DATOS CORPORALES Y NUTRICIÓN ---
-    if(formRutina) {
+    // --- LÓGICA DEL CALENDARIO DE RACHAS ---
+    function renderizarCalendario() {
+        const gridCalendario = document.getElementById('grid-calendario');
+        const contadorRacha = document.getElementById('contador-racha');
+        if (!gridCalendario) return;
+
+        gridCalendario.innerHTML = '';
+
+        const fechaActual = new Date();
+        const año = fechaActual.getFullYear();
+        const mes = fechaActual.getMonth();
+        const totalDiasMes = new Date(año, mes + 1, 0).getDate();
+
+        let diasEntrenados = JSON.parse(localStorage.getItem('dias_entrenados')) || [];
+        let rachaActual = 0;
+
+        for (let dia = 1; dia <= totalDiasMes; dia++) {
+            const diaFormateado = String(dia).padStart(2, '0');
+            const mesFormateado = String(mes + 1).padStart(2, '0');
+            const fechaString = `${año}-${mesFormateado}-${diaFormateado}`;
+
+            const celda = document.createElement('div');
+            celda.classList.add('dia-celda');
+            celda.textContent = dia;
+
+            if (diasEntrenados.includes(fechaString)) {
+                celda.classList.add('entrenado');
+                rachaActual++;
+            }
+
+            celda.addEventListener('click', () => {
+                if (diasEntrenados.includes(fechaString)) {
+                    diasEntrenados = diasEntrenados.filter(d => d !== fechaString);
+                } else {
+                    diasEntrenados.push(fechaString);
+                }
+                localStorage.setItem('dias_entrenados', JSON.stringify(diasEntrenados));
+                renderizarCalendario();
+            });
+
+            gridCalendario.appendChild(celda);
+        }
+
+        if (contadorRacha) {
+            contadorRacha.textContent = rachaActual;
+        }
+    }
+    renderizarCalendario();
+
+    // --- LÓGICA DE RUTINA FAVORITA ---
+    let rutinaActualData = null;
+    const seccionFavorito = document.getElementById('seccion-favorito-guardado');
+    const btnGuardarFavorito = document.getElementById('btn-guardar-favorito');
+    const btnCargarFavorito = document.getElementById('btn-cargar-favorito');
+
+    function verificarFavoritoGuardado() {
+        const guardada = localStorage.getItem('rutina_favorita');
+        if (guardada && seccionFavorito) {
+            seccionFavorito.classList.remove('oculto');
+        }
+    }
+    verificarFavoritoGuardado();
+
+    if (btnGuardarFavorito) {
+        btnGuardarFavorito.addEventListener('click', () => {
+            if (rutinaActualData) {
+                localStorage.setItem('rutina_favorita', JSON.stringify(rutinaActualData));
+                alert('¡Rutina guardada en favoritos con éxito! ⭐');
+                verificarFavoritoGuardado();
+            }
+        });
+    }
+
+    if (btnCargarFavorito) {
+        btnCargarFavorito.addEventListener('click', () => {
+            const guardada = JSON.parse(localStorage.getItem('rutina_favorita'));
+            if (guardada) {
+                document.getElementById('peso').value = guardada.peso;
+                document.getElementById('altura').value = guardada.altura;
+                document.getElementById('edad').value = guardada.edad;
+                document.getElementById('objetivo').value = guardada.objetivo;
+                document.getElementById('dias').value = guardada.dias;
+
+                formRutina.dispatchEvent(new Event('submit'));
+            }
+        });
+    }
+
+    // --- BASE DE DATOS DE EJERCICIOS Y TIEMPOS DE DESCANSO ---
+    const baseEjercicios = {
+        musculo: {
+            descanso: "90 - 120 segundos",
+            dias: [
+                ["Press de Banca plano (4x8-10)", "Aperturas con mancuernas (3x12)", "Press militar con barra (4x8)", "Elevaciones laterales (4x12)", "Extensiones de tríceps (3x12)"],
+                ["Dominadas o Jalón al pecho (4x8-10)", "Remo con barra (4x8)", "Remo en polea baja (3x12)", "Curl de bíceps con barra (3x10)", "Curl martillo (3x12)"],
+                ["Sentadilla libre (4x8)", "Prensa de pierna (4x10)", "Extensiones de cuádriceps (3x12)", "Curl femoral tumbado (3x12)", "Elevación de talones (4x15)"],
+                ["Press inclinado con mancuernas (4x10)", "Cruce de poleas (3x12)", "Press Arnold (3x10)", "Fondos en paralelas (3xMAX)"],
+                ["Peso muerto rumano (4x8)", "Hip thrust (4x10)", "Curl femoral sentado (3x12)", "Abdominales en polea (3x15)"]
+            ]
+        },
+        grasa: {
+            descanso: "45 - 60 segundos",
+            dias: [
+                ["Sentadillas con salto (4x15)", "Flexiones de pecho (4x12)", "Zancadas dinámicas (3x12 por pierna)", "Plancha abdominal (3x 45 seg)"],
+                ["Burpees (4x10)", "Remo con mancuernas (4x12)", "Mountain Climbers (3x 45 seg)", "Elevaciones de piernas (3x15)"],
+                ["Peso muerto con mancuernas (4x12)", "Press de hombros (4x12)", "Jumping Jacks (3x 1 min)", "Abdominales bicicleta (3x20)"],
+                ["Thrusters con mancuernas (4x10)", "Dominadas asistidas (3x8)", "Sombra de boxeo o cuerda (4x 1 min)", "Plancha lateral (3x 30 seg c/u)"],
+                ["Zancadas búlgaras (3x10)", "Flexiones diamante (3x10)", "Sprint estático (5x 30 seg)", "Crunches abdominales (3x20)"]
+            ]
+        },
+        fuerza: {
+            descanso: "3 - 5 minutos",
+            dias: [
+                ["Sentadilla trasera pesada (5x5)", "Press de banca pesado (5x5)", "Dominadas lastradas (4x6)", "Face pulls (3x12)"],
+                ["Peso muerto convencional (4x3-5)", "Press militar estricto (4x5)", "Remo pendlay (4x6)", "Encogimientos con barra (3x8)"],
+                ["Press de banca con parada (4x5)", "Fondos con peso (4x6)", "Curl con barra olímpica (3x6)", "Extensiones de tríceps pesado (3x6)"],
+                ["Sentadilla frontal (4x5)", "Prensa pesada (4x6)", "Hip thrust pesado (4x6)", "Elevación de talones pesado (4x10)"],
+                ["Peso muerto rumano pesado (4x5)", "Press inclinado con barra (4x5)", "Dominadas neutras (4x6)", "Abdominales con peso (3x10)"]
+            ]
+        },
+        tonificacion: {
+            descanso: "60 segundos",
+            dias: [
+                ["Sentadillas libres (4x12)", "Puente de glúteos (4x15)", "Press de hombros con mancuernas (3x12)", "Plancha abdominal (3x 45 seg)"],
+                ["Zancadas estáticas (3x12)", "Curl de bíceps (3x12)", "Patada de tríceps (3x12)", "Elevaciones laterales (3x15)"],
+                ["Peso muerto rumano con mancuernas (4x12)", "Aperturas de pecho (3x12)", "Remo inclinado con mancuernas (3x12)", "Abdominales en V (3x12)"],
+                ["Sentadillas sumo (4x12)", "Flexiones inclinadas (3x10)", "Elevación de talones (4x20)", "Abdominales crunch (3x15)"],
+                ["Zancadas caminando (3x12)", "Press Arnold liviano (3x12)", "Curl martillo (3x12)", "Plancha lateral (3x 30 seg)"]
+            ]
+        },
+        resistencia: {
+            descanso: "30 - 45 segundos",
+            dias: [
+                ["Circuito: Sentadillas + Jumping Jacks + Skipping (4 rondas de 45s c/u)", "Flexiones continuas (3x máx)", "Abdominales dinámicos (3x 1 min)"],
+                ["Circuito: Zancadas + Mountain Climbers + Burpees (4 rondas de 45s c/u)", "Plancha frontal con movimiento (3x 45s)"],
+                ["Circuito: Sentadillas con salto + Press militar liviano + Cuerda (4 rondas)"],
+                ["Circuito: Zancadas búlgaras + Flexiones abiertas + Escaladores (4 rondas)"],
+                ["Circuito aeróbico completo de cuerpo entero (5 rondas de alta intensidad)"]
+            ]
+        },
+        movilidad: {
+            descanso: "30 segundos",
+            dias: [
+                ["Movilidad articular de hombros y cuello (3 series)", "Rotaciones torácicas en suelo (3x10)", "Sentadilla profunda asistida (3x 45s)", "Estiramiento de cadena posterior (3x 45s)"],
+                ["Apertura de caderas en posición de lagartija (3x10)", "Gato-Vaca para columna (3x15)", "Movilidad de muñecas y tobillos (3 series)"],
+                ["Estiramiento de psoas y flexores de cadera (3x 45s)", "Rotaciones de tronco sentados (3x12)", "Postura del niño y cobra (3 series)"],
+                ["Movilidad escapular en pared (3x12)", "Apertura de pecho y hombros (3x 45s)", "Sentadilla cosaca dinámica (3x10)"],
+                ["Rutina completa de estiramientos globales y respiración diafragmática (15 mins)"]
+            ]
+        },
+        calistenia: {
+            descanso: "90 segundos",
+            dias: [
+                ["Dominadas estrictas (4x max)", "Flexiones diamante (4x12)", "Australian pull-ups (4x12)", "Plancha abdominal (3x 1 min)"],
+                ["Fondos en paralelas (4x8-10)", "Flexiones declinadas (4x12)", "Elevaciones de piernas colgado (3x10)", "Sentadillas pistol asistidas (3x8)"],
+                ["Dominadas supinas (chin-ups) (4x8)", "Flexiones en pica para hombro (4x10)", "Remo invertido en barra (4x12)", "L-sit en suelo o paralelas (3x 20s)"],
+                ["Sentadillas libres a una pierna (3x8)", "Flexiones arquero (3x8 por lado)", "Puente de glúteos a una pierna (3x12)", "Abdominales windshield wipers (3x12)"],
+                ["Muscle-up o progresión de tirón (4x5)", "Fondos rusos (3x8)", "Flexiones explosivas con palmada (3x8)", "Plancha hollow body (3x 45s)"]
+            ]
+        }
+    };
+
+    // --- GENERADOR DE RUTINAS, NUTRICIÓN Y CRONÓMETRO ---
+    if (formRutina) {
         formRutina.addEventListener('submit', (e) => {
             e.preventDefault();
 
@@ -48,309 +203,122 @@ document.addEventListener('DOMContentLoaded', () => {
             const altura = parseFloat(document.getElementById('altura').value);
             const edad = parseInt(document.getElementById('edad').value);
             const objetivo = document.getElementById('objetivo').value;
-            const dias = parseInt(document.getElementById('dias').value);
+            const diasSeleccionados = parseInt(document.getElementById('dias').value);
 
-            const alturaMetros = altura / 100;
-            const imc = (peso / (alturaMetros * alturaMetros)).toFixed(1);
+            rutinaActualData = { peso, altura, edad, objetivo, dias: diasSeleccionados };
+
+            formRutina.style.display = 'none';
+            if (seccionFavorito) seccionFavorito.style.display = 'none';
+            resultadoContainer.classList.remove('oculto');
+
+            const objetivoSelect = document.getElementById('objetivo');
+            const textoObjetivo = objetivoSelect.options[objetivoSelect.selectedIndex].text;
+
+            tituloPlan.textContent = `Plan: ${textoObjetivo}`;
+            subPlan.textContent = `Perfil: ${peso}kg | ${altura}cm | ${edad} años`;
+
+            // CÁLCULO DE CALORÍAS Y MACRONUTRIENTES
+            let tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5; 
+            let factorActividad = 1.375;
+            if (diasSeleccionados >= 3 && diasSeleccionados <= 4) factorActividad = 1.55;
+            if (diasSeleccionados >= 5) factorActividad = 1.725;
+
+            let caloriasMantenimiento = tmb * factorActividad;
+            let caloriasObjetivo = caloriasMantenimiento;
+            let gramosProteina = Math.round(peso * 2.0);
+
+            if (objetivo === 'grasa') {
+                caloriasObjetivo -= 400;
+            } else if (objetivo === 'musculo' || objetivo === 'fuerza') {
+                caloriasObjetivo += 300;
+            }
+
+            caloriasObjetivo = Math.round(caloriasObjetivo);
+            let gramosGrasa = Math.round((caloriasObjetivo * 0.25) / 9);
+            let gramosCarbos = Math.round((caloriasObjetivo - (gramosProteina * 4) - (gramosGrasa * 9)) / 4);
+
+            const datosPlan = baseEjercicios[objetivo] || baseEjercicios['musculo'];
             
-            let estadoImc = "Peso normal";
-            let consejoNutricional = "";
-
-            if (imc < 18.5) {
-                estadoImc = "Bajo peso";
-                consejoNutricional = "Para ganar masa de forma saludable, enfócate en un superávit calórico. Acompaña tu rutina con alimentos ricos en proteínas magras (pollo, pescado, huevos), carbohidratos complejos (arroz, avena, papa) y grasas saludables (aguacate, frutos secos, aceite de oliva) para apoyar el crecimiento muscular.";
-            } else if (imc >= 25 && imc < 30) {
-                estadoImc = "Sobrepeso";
-                consejoNutricional = "Para optimizar la pérdida de grasa, busca un ligero déficit calórico priorizando alimentos saciantes. Consume abundantes vegetales, proteínas de alta calidad para cuidar tu músculo (pechuga, claras, legumbres) y carbohidratos integrales en porciones moderadas. Evita azúcares refinados y bebe mucha agua.";
-            } else if (imc >= 30) {
-                estadoImc = "Obesidad";
-                consejoNutricional = "Es ideal un enfoque enfocado en alimentos reales y nutritivos sin pasar hambre extrema. Aumenta el consumo de fibra con verduras y frutas de bajo índice glucémico, fuentes limpias de proteína en cada comida y mantén una hidratación constante para potenciar la quema de grasa y proteger tus articulaciones.";
-            } else {
-                consejoNutricional = "¡Estás en un peso saludable! Mantén una dieta equilibrada que mantenga tu energía: combina carbohidratos complejos, buenas porciones de proteína en cada comida, grasas saludables y vegetales variados para rendir al máximo en tus entrenamientos.";
-            }
-
-            const nombresObjetivo = {
-                musculo: "Ganancia de Masa Muscular (Hipertrofia)",
-                grasa: "Pérdida de Grasa y Definición",
-                fuerza: "Ganancia de Fuerza Pura"
-            };
-
-            if(tituloPlan) tituloPlan.textContent = `Plan: ${nombresObjetivo[objetivo]}`;
+            listaRutinas.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 10px;">Calculando plan y nutrición...</p>`;
             
-            if(subPlan) {
-                subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | IMC: ${imc} (${estadoImc}) | ${dias} Días por semana`;
-            }
-
-            const nutricionTexto = document.getElementById('nutricion-texto');
-            if(nutricionTexto) {
-                nutricionTexto.textContent = consejoNutricional;
-            }
-
-            if(listaRutinas) listaRutinas.innerHTML = '';
-            const rutinaData = obtenerEjerciciosPorObjetivo(objetivo, dias);
-
-            rutinaData.forEach((diaInfo, index) => {
-                const diaCard = document.createElement('div');
-                diaCard.className = 'dia-card anime-fade-in';
-                
-                let ejerciciosHTML = diaInfo.ejercicios.map((ej, ejIndex) => `
-                    <div class="ejercicio-item" id="ej-${index}-${ejIndex}" data-nombre="${ej.nombre}" data-desc="${ej.desc}">
-                        <div class="ejercicio-info">
-                            <span class="material-icons">fitness_center</span>
-                            <div>
-                                <strong>${ej.nombre}</strong>
-                                <p>${ej.series} series x ${ej.reps} reps</p>
-                            </div>
-                        </div>
-                        <div class="ejercicio-acciones">
-                            <button class="btn-timer-trigger" data-segundos="${ej.descanso}" title="Iniciar descanso">
-                                <span class="material-icons">timer</span> ${ej.descanso}s
-                            </button>
-                            <button class="btn-check-ejercicio" title="Marcar como hecho">
-                                <span class="material-icons" style="font-size: 1.1rem;">check</span>
-                            </button>
+            setTimeout(() => {
+                let htmlEjercicios = `
+                    <!-- TARJETA DE NUTRICIÓN Y MACROS (Usando clases idénticas a las tarjetas de ejercicios) -->
+                    <div class="dia-card" style="border: 2px solid var(--primary); margin-bottom: 16px;">
+                        <h4 style="color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
+                            🥗 Tu Meta Nutricional Diaria
+                        </h4>
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
+                            <div class="ejercicio-item" style="margin: 0; justify-content: flex-start;">🔥 <strong>Calorías:</strong> ~${caloriasObjetivo} kcal</div>
+                            <div class="ejercicio-item" style="margin: 0; justify-content: flex-start;">🥩 <strong>Proteínas:</strong> ~${gramosProteina} g</div>
+                            <div class="ejercicio-item" style="margin: 0; justify-content: flex-start;">🥑 <strong>Grasas:</strong> ~${gramosGrasa} g</div>
+                            <div class="ejercicio-item" style="margin: 0; justify-content: flex-start;">🥔 <strong>Carbohidratos:</strong> ~${gramosCarbos} g</div>
                         </div>
                     </div>
-                `).join('');
-
-                diaCard.innerHTML = `
-                    <h4>Día ${index + 1}: ${diaInfo.titulo}</h4>
-                    <div class="ejercicios-lista">${ejerciciosHTML}</div>
                 `;
 
-                if(listaRutinas) listaRutinas.appendChild(diaCard);
-            });
+                for(let i = 0; i < diasSeleccionados; i++) {
+                    const ejerciciosDelDia = datosPlan.dias[i % datosPlan.dias.length];
+                    
+                    htmlEjercicios += `
+                        <div class="dia-card">
+                            <h4>Día ${i + 1}: Sesión de Entrenamiento</h4>
+                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                    `;
 
-            formRutina.classList.add('oculto');
-            if(resultadoContainer) resultadoContainer.classList.remove('oculto');
-            
-            activarEventosDinamicos();
-        });
-    }
+                    ejerciciosDelDia.forEach(ejercicio => {
+                        htmlEjercicios += `
+                            <div class="ejercicio-item" style="display: flex; justify-content: space-between; align-items: center;">
+                                <span>• ${ejercicio}</span>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <button class="btn-timer" style="background: var(--primary); color: #000; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">⏱️ ${datosPlan.descanso.split(" ")[0]}s</button>
+                                    <input type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+                                </div>
+                            </div>
+                        `;
+                    });
 
-    // --- 3. BOTÓN REGRESAR ---
-    if(btnRegresar) {
-        btnRegresar.addEventListener('click', () => {
-            if(resultadoContainer) resultadoContainer.classList.add('oculto');
-            if(formRutina) {
-                formRutina.classList.remove('oculto');
-                formRutina.reset();
-            }
-            detenerCronometro();
-        });
-    }
-
-    // --- 4. BANCO DE EJERCICIOS CON 3 MINUTOS (180s) PARA MÚSCULO ---
-    function obtenerEjerciciosPorObjetivo(objetivo, dias) {
-        const banco = {
-            musculo: [
-                { nombre: "Press de Banca con Barra", desc: "Acuéstate en el banco plano, sujeta la barra un poco más abierta que tus hombros, baja de forma controlada al pecho y empuja con fuerza hacia arriba.", series: 4, reps: "8-10", descanso: 180 },
-                { nombre: "Sentadilla Libre", desc: "Coloca la barra sobre la parte alta de la espalda, mantén el core apretado, baja la cadera hacia atrás como si fueras a sentarte y sube.", series: 4, reps: "8-12", descanso: 180 },
-                { nombre: "Dominadas en Barra", desc: "Sujeta la barra con las manos hacia el frente, cuelga con los brazos extendidos y elévate hasta pasar la barbilla por encima de la barra.", series: 3, reps: "8-10", descanso: 180 },
-                { nombre: "Press Militar con Mancuernas", desc: "Sentado o de pie, sostén las mancuernas a la altura de los hombros y presiona verticalmente hacia arriba sin arquear la espalda.", series: 3, reps: "10-12", descanso: 180 },
-                { nombre: "Curl de Bíceps con Barra Z", desc: "De pie, sujeta la barra con agarre supino y flexiona los codos contrayendo los bíceps sin mover el tronco.", series: 3, reps: "12", descanso: 180 },
-                { nombre: "Extensiones de Tríceps en Polea", desc: "Agarra el mango de la polea alta, mantén los codos fijos a los costados y empuja hacia abajo extendiendo los brazos.", series: 3, reps: "12", descanso: 180 }
-            ],
-            grasa: [
-                { nombre: "Zancadas (Lunges) caminando", desc: "Da un paso al frente y baja la cadera hasta que ambas rodillas formen un ángulo de 90 grados, alterna las piernas de forma dinámica.", series: 4, reps: "12 por pierna", descanso: 45 },
-                { nombre: "Flexiones de Pecho", desc: "Coloca las manos en el suelo a la altura de los hombros, mantén el cuerpo recto y baja el pecho casi rozando el suelo.", series: 4, reps: "15", descanso: 45 },
-                { nombre: "Remo con Mancuerna a una mano", desc: "Apoya una rodilla y una mano en un banco, con la otra mano eleva la mancuerna llevando el codo bien atrás.", series: 3, reps: "12", descanso: 60 },
-                { nombre: "Sentadillas con Salto", desc: "Realiza una sentadilla profunda y al subir explota con un salto vertical amortiguando la caída.", series: 3, reps: "12", descanso: 45 },
-                { nombre: "Plancha Abdominal", desc: "Apoya los antebrazos y las puntas de los pies en el suelo, mantén el abdomen contraído y el cuerpo alineado por 45 segundos.", series: 3, reps: "45 seg", descanso: 45 }
-            ],
-            fuerza: [
-                { nombre: "Peso Muerto Tradicional", desc: "Con los pies separados al ancho de hombros, agarra la barra, mantén la espalda totalmente recta y eleva extendiendo caderas y rodillas.", series: 5, reps: "5", descanso: 180 },
-                { nombre: "Press de Banca Pesado", desc: "Enfoque en cargas altas y pocas repeticiones con buena estabilidad en escápulas.", series: 5, reps: "5", descanso: 180 },
-                { nombre: "Sentadilla Pesada", desc: "Sentadillas con barra libre a un 80-85% de tu capacidad máxima.", series: 5, reps: "5", descanso: 180 },
-                { nombre: "Press Militar Estricto", desc: "Empuje vertical de fuerza con barra desde los hombros sin impulso de piernas.", series: 4, reps: "6", descanso: 150 }
-            ]
-        };
-
-        const seleccion = banco[objetivo] || banco.musculo;
-        let resultado = [];
-        
-        for(let i = 0; i < dias; i++) {
-            let inicio = (i * 2) % seleccion.length;
-            let ejerciciosDia = [
-                seleccion[inicio % seleccion.length],
-                seleccion[(inicio + 1) % seleccion.length],
-                seleccion[(inicio + 2) % seleccion.length]
-            ];
-            resultado.push({
-                titulo: `Fuerza y Rendimiento - Bloque ${i + 1}`,
-                ejercicios: ejerciciosDia
-            });
-        }
-        return resultado;
-    }
-
-    // --- 5. ACTIVAR EVENTOS DINÁMICOS (MODAL, CRONÓMETRO Y AUTO-CHULEO) ---
-    function activarEventosDinamicos() {
-        const itemsEjercicio = document.querySelectorAll('.ejercicio-item');
-        itemsEjercicio.forEach(item => {
-            const infoDiv = item.querySelector('.ejercicio-info');
-            if(infoDiv) {
-                infoDiv.addEventListener('click', () => {
-                    const nombre = item.getAttribute('data-nombre');
-                    const desc = item.getAttribute('data-desc');
-                    if(modalTitulo) modalTitulo.textContent = nombre;
-                    if(modalDescripcion) modalDescripcion.textContent = desc;
-                    if(modalEjercicio) modalEjercicio.classList.remove('oculto');
-                });
-            }
-
-            const btnTimer = item.querySelector('.btn-timer-trigger');
-            const btnCheck = item.querySelector('.btn-check-ejercicio');
-
-            const toggleChulear = () => {
-                item.classList.toggle('completado');
-                if(item.classList.contains('completado')) {
-                    item.style.opacity = '0.5';
-                    item.style.borderColor = '#10b981';
-                    if(btnCheck) {
-                        btnCheck.style.background = '#10b981';
-                        btnCheck.style.color = '#ffffff';
-                    }
-                } else {
-                    item.style.opacity = '1';
-                    item.style.borderColor = '';
-                    if(btnCheck) {
-                        btnCheck.style.background = 'transparent';
-                        btnCheck.style.color = 'var(--primary)';
-                    }
+                    htmlEjercicios += `
+                            </div>
+                        </div>
+                    `;
                 }
-            };
 
-            if(btnTimer) {
-                btnTimer.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const segundosDescanso = parseInt(btnTimer.getAttribute('data-segundos')) || 60;
-                    iniciarCronometro(segundosDescanso);
-                    if(!item.classList.contains('completado')) {
-                        toggleChulear();
-                    }
-                });
-            }
+                listaRutinas.innerHTML = htmlEjercicios;
 
-            if(btnCheck) {
-                btnCheck.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    toggleChulear();
+                // LÓGICA DE LOS BOTONES DE CRONÓMETRO EN CADA EJERCICIO
+                const botonesTimer = listaRutinas.querySelectorAll('.btn-timer');
+                botonesTimer.forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        let tiempo = parseInt(datosPlan.descanso) || 90;
+                        let textoOriginal = btn.textContent;
+                        btn.disabled = true;
+
+                        let intervalo = setInterval(() => {
+                            let min = Math.floor(tiempo / 60);
+                            let seg = tiempo % 60;
+                            btn.textContent = `${min}:${seg < 10 ? '0' : ''}${seg}`;
+
+                            if (tiempo <= 0) {
+                                clearInterval(intervalo);
+                                btn.textContent = textoOriginal;
+                                btn.disabled = false;
+                            }
+                            tiempo--;
+                        }, 1000);
+                    });
                 });
-            }
+
+            }, 250);
         });
     }
 
-    if(cerrarModal) {
-        cerrarModal.addEventListener('click', () => {
-            if(modalEjercicio) modalEjercicio.classList.add('oculto');
-        });
-    }
-
-    window.addEventListener('click', (e) => {
-        if (e.target === modalEjercicio) {
-            modalEjercicio.classList.add('oculto');
-        }
-    });
-
-    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO (SIN MOVER LA PÁGINA) ---
-    function iniciarCronometro(segundos) {
-        detenerCronometro();
-        if(cronometroBox) cronometroBox.classList.remove('oculto');
-
-        let tiempoRestando = segundos;
-        actualizarTextoTimer(tiempoRestando);
-
-        temporizador = setInterval(() => {
-            tiempoRestando--;
-            actualizarTextoTimer(tiempoRestando);
-
-            if (tiempoRestando <= 0) {
-                detenerCronometro();
-                if(tiempoRestante) tiempoRestante.textContent = "¡A entrenar!";
-                setTimeout(() => {
-                    if(cronometroBox) cronometroBox.classList.add('oculto');
-                }, 2000);
-            }
-        }, 1000);
-    }
-
-    function actualizarTextoTimer(seg) {
-        const min = Math.floor(seg / 60);
-        const s = seg % 60;
-        if(tiempoRestante) {
-            tiempoRestante.textContent = `${min.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-        }
-    }
-
-    function detenerCronometro() {
-        if (temporizador) {
-            clearInterval(temporizador);
-            temporizador = null;
-        }
-    }
-
-    if(btnCancelarTimer) {
-        btnCancelarTimer.addEventListener('click', () => {
-            detenerCronometro();
-            if(cronometroBox) cronometroBox.classList.add('oculto');
+    if (btnRegresar) {
+        btnRegresar.addEventListener('click', () => {
+            resultadoContainer.classList.add('oculto');
+            formRutina.style.display = 'block';
+            verificarFavoritoGuardado();
+            formRutina.reset();
         });
     }
 });
-
-// --- LÓGICA DE RUTINA FAVORITA ---
-let rutinaActualData = null;
-const seccionFavorito = document.getElementById('seccion-favorito-guardado');
-const btnGuardarFavorito = document.getElementById('btn-guardar-favorito');
-const btnCargarFavorito = document.getElementById('btn-cargar-favorito');
-const formRutina = document.getElementById('form-rutina');
-
-// 1. Comprobar si hay una rutina guardada al cargar la página
-function verificarFavoritoGuardado() {
-    const guardada = localStorage.getItem('rutina_favorita');
-    if (guardada && seccionFavorito) {
-        seccionFavorito.classList.remove('oculto');
-    }
-}
-verificarFavoritoGuardado();
-
-// 2. Capturar datos actuales cuando el usuario genera la rutina
-if (formRutina) {
-    formRutina.addEventListener('submit', () => {
-        rutinaActualData = {
-            peso: document.getElementById('peso').value,
-            altura: document.getElementById('altura').value,
-            edad: document.getElementById('edad').value,
-            objetivo: document.getElementById('objetivo').value,
-            dias: document.getElementById('dias').value
-        };
-    });
-}
-
-// 3. Guardar en favoritos al hacer clic en el botón
-if (btnGuardarFavorito) {
-    btnGuardarFavorito.addEventListener('click', () => {
-        if (rutinaActualData) {
-            localStorage.setItem('rutina_favorita', JSON.stringify(rutinaActualData));
-            alert('¡Rutina guardada en favoritos con éxito! ⭐');
-            verificarFavoritoGuardado();
-        }
-    });
-}
-
-// 4. Cargar la rutina favorita al hacer clic en el botón rápido
-if (btnCargarFavorito) {
-    btnCargarFavorito.addEventListener('click', () => {
-        const guardada = JSON.parse(localStorage.getItem('rutina_favorita'));
-        if (guardada) {
-            document.getElementById('peso').value = guardada.peso;
-            document.getElementById('altura').value = guardada.altura;
-            document.getElementById('edad').value = guardada.edad;
-            document.getElementById('objetivo').value = guardada.objetivo;
-            document.getElementById('dias').value = guardada.dias;
-
-            // Simula el envío del formulario para generar los resultados automáticamente
-            formRutina.dispatchEvent(new Event('submit'));
-        }
-    });
-}
