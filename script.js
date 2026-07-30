@@ -221,19 +221,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO (CON SCROLL AL INICIO ADAPTADO A MÓVIL) ---
+    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO (MUESTRA ARRIBA SIN MOVER LA PÁGINA) ---
     function iniciarCronometro(segundos) {
         detenerCronometro();
         if(cronometroBox) cronometroBox.classList.remove('oculto');
-        
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-        document.body.scrollTop = 0;
-        document.documentElement.scrollTop = 0;
-
-        const tituloPlanElement = document.getElementById('titulo-plan');
-        if (tituloPlanElement) {
-            tituloPlanElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
 
         let tiempoRestando = segundos;
         actualizarTextoTimer(tiempoRestando);
