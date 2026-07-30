@@ -22,6 +22,13 @@
                 <p class="subtitulo">Diseña tu plan de entrenamiento ideal con tus datos corporales.</p>
             </div>
 
+            <!-- SECCIÓN DE FAVORITO GUARDADO (Aparece solo si hay una rutina guardada) -->
+            <div id="seccion-favorito-guardado" class="oculto" style="margin-bottom: 16px;">
+                <button type="button" id="btn-cargar-favorito" class="btn-principal" style="background-color: #059669; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                    <span class="material-icons">star</span> Cargar mi Rutina Favorita
+                </button>
+            </div>
+
             <!-- Formulario con datos corporales en fila horizontal y perfectamente alineados -->
             <form id="form-rutina">
                 <div style="display: flex; gap: 8px; margin-bottom: 16px; width: 100%; align-items: flex-start;">
@@ -93,10 +100,17 @@
                     <!-- Los días y ejercicios se inyectarán aquí -->
                 </div>
 
-                <button id="btn-regresar" class="btn-secundario">
-                    <span class="material-icons btn-start-icon">arrow_back</span>
-                    Volver a empezar
-                </button>
+                <!-- Botones de Acción en Resultados (Regresar y Guardar Favorita) -->
+                <div style="display: flex; gap: 8px; margin-top: 16px;">
+                    <button id="btn-regresar" class="btn-secundario" style="flex: 1; margin-bottom: 0;">
+                        <span class="material-icons btn-start-icon">arrow_back</span>
+                        Volver a empezar
+                    </button>
+                    <button id="btn-guardar-favorito" class="btn-secundario" style="flex: 1; margin-bottom: 0; border-color: #059669; color: #059669;" title="Guardar esta rutina">
+                        <span class="material-icons btn-start-icon">bookmark</span>
+                        Guardar Favorita
+                    </button>
+                </div>
             </div>
         </div>
         <footer>Creado con energía por Power Gym © 2026</footer>

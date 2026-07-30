@@ -296,4 +296,61 @@ document.addEventListener('DOMContentLoaded', () => {
             if(cronometroBox) cronometroBox.classList.add('oculto');
         });
     }
-});s
+});
+
+// --- LÓGICA DE RUTINA FAVORITA ---
+let rutinaActualData = null;
+const seccionFavorito = document.getElementById('seccion-favorito-guardado');
+const btnGuardarFavorito = document.getElementById('btn-guardar-favorito');
+const btnCargarFavorito = document.getElementById('btn-cargar-favorito');
+const formRutina = document.getElementById('form-rutina');
+
+// 1. Comprobar si hay una rutina guardada al cargar la página
+function verificarFavoritoGuardado() {
+    const guardada = localStorage.getItem('rutina_favorita');
+    if (guardada && seccionFavorito) {
+        seccionFavorito.classList.remove('oculto');
+    }
+}
+verificarFavoritoGuardado();
+
+// 2. Capturar datos actuales cuando el usuario genera la rutina
+if (formRutina) {
+    formRutina.addEventListener('submit', () => {
+        rutinaActualData = {
+            peso: document.getElementById('peso').value,
+            altura: document.getElementById('altura').value,
+            edad: document.getElementById('edad').value,
+            objetivo: document.getElementById('objetivo').value,
+            dias: document.getElementById('dias').value
+        };
+    });
+}
+
+// 3. Guardar en favoritos al hacer clic en el botón
+if (btnGuardarFavorito) {
+    btnGuardarFavorito.addEventListener('click', () => {
+        if (rutinaActualData) {
+            localStorage.setItem('rutina_favorita', JSON.stringify(rutinaActualData));
+            alert('¡Rutina guardada en favoritos con éxito! ⭐');
+            verificarFavoritoGuardado();
+        }
+    });
+}
+
+// 4. Cargar la rutina favorita al hacer clic en el botón rápido
+if (btnCargarFavorito) {
+    btnCargarFavorito.addEventListener('click', () => {
+        const guardada = JSON.parse(localStorage.getItem('rutina_favorita'));
+        if (guardada) {
+            document.getElementById('peso').value = guardada.peso;
+            document.getElementById('altura').value = guardada.altura;
+            document.getElementById('edad').value = guardada.edad;
+            document.getElementById('objetivo').value = guardada.objetivo;
+            document.getElementById('dias').value = guardada.dias;
+
+            // Simula el envío del formulario para generar los resultados automáticamente
+            formRutina.dispatchEvent(new Event('submit'));
+        }
+    });
+}
