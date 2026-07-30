@@ -81,18 +81,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if(tituloPlan) tituloPlan.textContent = `Plan: ${nombresObjetivo[objetivo]}`;
             
-            // Subtítulo con Edad, Peso, Altura e IMC
             if(subPlan) {
                 subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | IMC: ${imc} (${estadoImc}) | ${dias} Días por semana`;
             }
 
-            // Mostrar recomendación nutricional
             const nutricionTexto = document.getElementById('nutricion-texto');
             if(nutricionTexto) {
                 nutricionTexto.textContent = consejoNutricional;
             }
 
-            // Generar estructura de días y ejercicios
             if(listaRutinas) listaRutinas.innerHTML = '';
             const rutinaData = obtenerEjerciciosPorObjetivo(objetivo, dias);
 
@@ -109,8 +106,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p>${ej.series} series x ${ej.reps} reps</p>
                             </div>
                         </div>
-                        <button class="btn-timer-trigger" title="Iniciar descanso">
-                            <span class="material-icons">timer</span> 60s
+                        <button class="btn-timer-trigger" data-segundos="${ej.descanso}" title="Iniciar descanso">
+                            <span class="material-icons">timer</span> ${ej.descanso}s
                         </button>
                     </div>
                 `).join('');
@@ -123,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(listaRutinas) listaRutinas.appendChild(diaCard);
             });
 
-            // Ocultar formulario y mostrar resultados
             formRutina.classList.add('oculto');
             if(resultadoContainer) resultadoContainer.classList.remove('oculto');
             
@@ -143,29 +139,29 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 4. BANCO DE EJERCICIOS ---
+    // --- 4. BANCO DE EJERCICIOS CON TIEMPOS DE DESCANSO SEGÚN OBJETIVO ---
     function obtenerEjerciciosPorObjetivo(objetivo, dias) {
         const banco = {
             musculo: [
-                { nombre: "Press de Banca con Barra", desc: "Acuéstate en el banco plano, sujeta la barra un poco más abierta que tus hombros, baja de forma controlada al pecho y empuja con fuerza hacia arriba.", series: 4, reps: "8-10" },
-                { nombre: "Sentadilla Libre", desc: "Coloca la barra sobre la parte alta de la espalda, mantén el core apretado, baja la cadera hacia atrás como si fueras a sentarte y sube.", series: 4, reps: "8-12" },
-                { nombre: "Dominadas en Barra", desc: "Sujeta la barra con las manos hacia el frente, cuelga con los brazos extendidos y elévate hasta pasar la barbilla por encima de la barra.", series: 3, reps: "8-10" },
-                { nombre: "Press Militar con Mancuernas", desc: "Sentado o de pie, sostén las mancuernas a la altura de los hombros y presiona verticalmente hacia arriba sin arquear la espalda.", series: 3, reps: "10-12" },
-                { nombre: "Curl de Bíceps con Barra Z", desc: "De pie, sujeta la barra con agarre supino y flexiona los codos contrayendo los bíceps sin mover el tronco.", series: 3, reps: "12" },
-                { nombre: "Extensiones de Tríceps en Polea", desc: "Agarra el mango de la polea alta, mantén los codos fijos a los costados y empuja hacia abajo extendiendo los brazos.", series: 3, reps: "12" }
+                { nombre: "Press de Banca con Barra", desc: "Acuéstate en el banco plano, sujeta la barra un poco más abierta que tus hombros, baja de forma controlada al pecho y empuja con fuerza hacia arriba.", series: 4, reps: "8-10", descanso: 120 },
+                { nombre: "Sentadilla Libre", desc: "Coloca la barra sobre la parte alta de la espalda, mantén el core apretado, baja la cadera hacia atrás como si fueras a sentarte y sube.", series: 4, reps: "8-12", descanso: 120 },
+                { nombre: "Dominadas en Barra", desc: "Sujeta la barra con las manos hacia el frente, cuelga con los brazos extendidos y elévate hasta pasar la barbilla por encima de la barra.", series: 3, reps: "8-10", descanso: 90 },
+                { nombre: "Press Militar con Mancuernas", desc: "Sentado o de pie, sostén las mancuernas a la altura de los hombros y presiona verticalmente hacia arriba sin arquear la espalda.", series: 3, reps: "10-12", descanso: 90 },
+                { nombre: "Curl de Bíceps con Barra Z", desc: "De pie, sujeta la barra con agarre supino y flexiona los codos contrayendo los bíceps sin mover el tronco.", series: 3, reps: "12", descanso: 90 },
+                { nombre: "Extensiones de Tríceps en Polea", desc: "Agarra el mango de la polea alta, mantén los codos fijos a los costados y empuja hacia abajo extendiendo los brazos.", series: 3, reps: "12", descanso: 90 }
             ],
             grasa: [
-                { nombre: "Zancadas (Lunges) caminando", desc: "Da un paso al frente y baja la cadera hasta que ambas rodillas formen un ángulo de 90 grados, alterna las piernas de forma dinámica.", series: 4, reps: "12 por pierna" },
-                { nombre: "Flexiones de Pecho", desc: "Coloca las manos en el suelo a la altura de los hombros, mantén el cuerpo recto y baja el pecho casi rozando el suelo.", series: 4, reps: "15" },
-                { nombre: "Remo con Mancuerna a una mano", desc: "Apoya una rodilla y una mano en un banco, con la otra mano eleva la mancuerna llevando el codo bien atrás.", series: 3, reps: "12" },
-                { nombre: "Sentadillas con Salto", desc: "Realiza una sentadilla profunda y al subir explota con un salto vertical amortiguando la caída.", series: 3, reps: "12" },
-                { nombre: "Plancha Abdominal", desc: "Apoya los antebrazos y las puntas de los pies en el suelo, mantén el abdomen contraído y el cuerpo alineado por 45 segundos.", series: 3, reps: "45 seg" }
+                { nombre: "Zancadas (Lunges) caminando", desc: "Da un paso al frente y baja la cadera hasta que ambas rodillas formen un ángulo de 90 grados, alterna las piernas de forma dinámica.", series: 4, reps: "12 por pierna", descanso: 45 },
+                { nombre: "Flexiones de Pecho", desc: "Coloca las manos en el suelo a la altura de los hombros, mantén el cuerpo recto y baja el pecho casi rozando el suelo.", series: 4, reps: "15", descanso: 45 },
+                { nombre: "Remo con Mancuerna a una mano", desc: "Apoya una rodilla y una mano en un banco, con la otra mano eleva la mancuerna llevando el codo bien atrás.", series: 3, reps: "12", descanso: 60 },
+                { nombre: "Sentadillas con Salto", desc: "Realiza una sentadilla profunda y al subir explota con un salto vertical amortiguando la caída.", series: 3, reps: "12", descanso: 45 },
+                { nombre: "Plancha Abdominal", desc: "Apoya los antebrazos y las puntas de los pies en el suelo, mantén el abdomen contraído y el cuerpo alineado por 45 segundos.", series: 3, reps: "45 seg", descanso: 45 }
             ],
             fuerza: [
-                { nombre: "Peso Muerto Tradicional", desc: "Con los pies separados al ancho de hombros, agarra la barra, mantén la espalda totalmente recta y eleva extendiendo caderas y rodillas.", series: 5, reps: "5" },
-                { nombre: "Press de Banca Pesado", desc: "Enfoque en cargas altas y pocas repeticiones con buena estabilidad en escápulas.", series: 5, reps: "5" },
-                { nombre: "Sentadilla Pesada", desc: "Sentadillas con barra libre a un 80-85% de tu capacidad máxima.", series: 5, reps: "5" },
-                { nombre: "Press Militar Estricto", desc: "Empuje vertical de fuerza con barra desde los hombros sin impulso de piernas.", series: 4, reps: "6" }
+                { nombre: "Peso Muerto Tradicional", desc: "Con los pies separados al ancho de hombros, agarra la barra, mantén la espalda totalmente recta y eleva extendiendo caderas y rodillas.", series: 5, reps: "5", descanso: 180 },
+                { nombre: "Press de Banca Pesado", desc: "Enfoque en cargas altas y pocas repeticiones con buena estabilidad en escápulas.", series: 5, reps: "5", descanso: 180 },
+                { nombre: "Sentadilla Pesada", desc: "Sentadillas con barra libre a un 80-85% de tu capacidad máxima.", series: 5, reps: "5", descanso: 180 },
+                { nombre: "Press Militar Estricto", desc: "Empuje vertical de fuerza con barra desde los hombros sin impulso de piernas.", series: 4, reps: "6", descanso: 150 }
             ]
         };
 
@@ -206,7 +202,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if(btnTimer) {
                 btnTimer.addEventListener('click', (e) => {
                     e.stopPropagation();
-                    iniciarCronometro(60);
+                    const segundosDescanso = parseInt(btnTimer.getAttribute('data-segundos')) || 60;
+                    iniciarCronometro(segundosDescanso);
                 });
             }
         });
@@ -229,12 +226,10 @@ document.addEventListener('DOMContentLoaded', () => {
         detenerCronometro();
         if(cronometroBox) cronometroBox.classList.remove('oculto');
         
-        // Forzar scroll arriba de manera compatible con móviles y PC
         window.scrollTo({ top: 0, behavior: 'smooth' });
         document.body.scrollTop = 0;
         document.documentElement.scrollTop = 0;
 
-        // Forzar desplazamiento directo al título del plan arriba para asegurar el scroll en móviles
         const tituloPlanElement = document.getElementById('titulo-plan');
         if (tituloPlanElement) {
             tituloPlanElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
