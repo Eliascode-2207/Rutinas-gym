@@ -44,14 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
         formRutina.addEventListener('submit', (e) => {
             e.preventDefault();
 
-            // Capturar datos corporales
             const peso = parseFloat(document.getElementById('peso').value);
             const altura = parseFloat(document.getElementById('altura').value);
             const edad = parseInt(document.getElementById('edad').value);
             const objetivo = document.getElementById('objetivo').value;
             const dias = parseInt(document.getElementById('dias').value);
 
-            // Calcular IMC (Altura de cm a metros)
             const alturaMetros = altura / 100;
             const imc = (peso / (alturaMetros * alturaMetros)).toFixed(1);
             
@@ -104,12 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p>${ej.series} series x ${ej.reps} reps</p>
                             </div>
                         </div>
-                        <div class="ejercicio-acciones" style="display: flex; gap: 8px; align-items: center;">
+                        <div class="ejercicio-acciones">
                             <button class="btn-timer-trigger" data-segundos="${ej.descanso}" title="Iniciar descanso">
                                 <span class="material-icons">timer</span> ${ej.descanso}s
                             </button>
-                            <button class="btn-check-ejercicio" title="Marcar como hecho" style="background: transparent; border: 2px solid #3b82f6; border-radius: 8px; cursor: pointer; padding: 4px 6px; display: flex; align-items: center; color: #3b82f6;">
-                                <span class="material-icons" style="font-size: 1.2rem;">check</span>
+                            <button class="btn-check-ejercicio" title="Marcar como hecho">
+                                <span class="material-icons" style="font-size: 1.1rem;">check</span>
                             </button>
                         </div>
                     </div>
@@ -142,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 4. BANCO DE EJERCICIOS ---
+    // --- 4. BANCO DE EJERCICIOS CON 3 MINUTOS (180s) PARA MÚSCULO ---
     function obtenerEjerciciosPorObjetivo(objetivo, dias) {
         const banco = {
             musculo: [
@@ -186,7 +184,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return resultado;
     }
 
-    // --- 5. ACTIVAR EVENTOS DINÁMICOS (MODAL, CRONÓMETRO Y AUTO-CHULOS) ---
+    // --- 5. ACTIVAR EVENTOS DINÁMICOS (MODAL, CRONÓMETRO Y AUTO-CHULEO) ---
     function activarEventosDinamicos() {
         const itemsEjercicio = document.querySelectorAll('.ejercicio-item');
         itemsEjercicio.forEach(item => {
@@ -204,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const btnTimer = item.querySelector('.btn-timer-trigger');
             const btnCheck = item.querySelector('.btn-check-ejercicio');
 
-            // Función para alternar el estado chuleado
             const toggleChulear = () => {
                 item.classList.toggle('completado');
                 if(item.classList.contains('completado')) {
@@ -219,7 +216,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     item.style.borderColor = '';
                     if(btnCheck) {
                         btnCheck.style.background = 'transparent';
-                        btnCheck.style.color = '#3b82f6';
+                        btnCheck.style.color = 'var(--primary)';
                     }
                 }
             };
@@ -228,8 +225,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 btnTimer.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const segundosDescanso = parseInt(btnTimer.getAttribute('data-segundos')) || 60;
-                    
-                    // Al dar clic en descansar, inicia el cronómetro y chulea automáticamente el ejercicio
                     iniciarCronometro(segundosDescanso);
                     if(!item.classList.contains('completado')) {
                         toggleChulear();
@@ -258,7 +253,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO ---
+    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO (SIN MOVER LA PÁGINA) ---
     function iniciarCronometro(segundos) {
         detenerCronometro();
         if(cronometroBox) cronometroBox.classList.remove('oculto');
@@ -301,4 +296,4 @@ document.addEventListener('DOMContentLoaded', () => {
             if(cronometroBox) cronometroBox.classList.add('oculto');
         });
     }
-});
+});s
