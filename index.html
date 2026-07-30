@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Power Gym | Generador de Rutinas</title>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <div class="card anime-fade-in">
+            <!-- BOTÓN DE MODO OSCURO -->
+            <button id="btn-modo-oscuro" class="btn-theme-toggle" title="Cambiar modo">
+                <span class="material-icons" id="icono-theme">dark_mode</span>
+            </button>
+
+            <div class="card-header">
+                <span class="material-icons header-icon">fitness_center</span>
+                <h2>Power Gym</h2>
+                <p class="subtitulo">Diseña tu plan de entrenamiento ideal en segundos.</p>
+            </div>
+
+            <!-- Formulario -->
+            <form id="form-rutina">
+                <div class="form-group">
+                    <label for="objetivo">
+                        <span class="material-icons input-icon">track_changes</span>
+                        ¿Cuál es tu objetivo principal?
+                    </label>
+                    <select id="objetivo" class="styled-select">
+                        <option value="musculo">Ganar Masa Muscular (Hipertrofia)</option>
+                        <option value="grasa">Pérdida de Grasa / Definición</option>
+                        <option value="fuerza">Ganar Fuerza Pura</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="dias">
+                        <span class="material-icons input-icon">event_available</span>
+                        ¿Cuántos días entrenarás?
+                    </label>
+                    <select id="dias" class="styled-select">
+                        <option value="3">3 días por semana</option>
+                        <option value="4">4 días por semana</option>
+                        <option value="5">5 días por semana</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn-principal pulse-on-hover">
+                    Generar Mi Rutina 
+                    <span class="material-icons btn-end-icon">bolt</span>
+                </button>
+            </form>
+
+            <!-- Contenedor de Resultados -->
+            <div id="resultado-container" class="oculto anime-slide-up">
+                <div class="info-plan">
+                    <div>
+                        <h3 id="titulo-plan">Tu Plan Asignado</h3>
+                        <p id="sub-plan">Objetivo y Frecuencia</p>
+                    </div>
+                    <span class="material-icons large-icon">assignment_ind</span>
+                </div>
+
+                <!-- CONTENEDOR FLOTANTE DEL CRONÓMETRO -->
+                <div id="cronometro-box" class="cronometro-box oculto">
+                    <span class="material-icons">timer</span>
+                    <div>
+                        <span id="cronometro-texto">Descanso: </span>
+                        <strong id="tiempo-restante">00:00</strong>
+                    </div>
+                    <button id="btn-cancelar-timer" class="btn-cerrar-timer">✕</button>
+                </div>
+
+                <div id="lista-rutinas" class="lista-rutinas">
+                    <!-- Los días se inyectan aquí -->
+                </div>
+
+                <button id="btn-regresar" class="btn-secundario">
+                    <span class="material-icons btn-start-icon">arrow_back</span>
+                    Volver a empezar
+                </button>
+            </div>
+        </div>
+        <footer>Creado con energía por Power Gym © 2026</footer>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
