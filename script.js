@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Referencias generales
     const formRutina = document.getElementById('form-rutina');
     const resultadoContainer = document.getElementById('resultado-container');
     const btnRegresar = document.getElementById('btn-regresar');
@@ -32,14 +31,13 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- LÓGICA DEL CALENDARIO DE RACHAS ---
+    // --- CALENDARIO DE RACHAS ---
     function renderizarCalendario() {
         const gridCalendario = document.getElementById('grid-calendario');
         const contadorRacha = document.getElementById('contador-racha');
         if (!gridCalendario) return;
 
         gridCalendario.innerHTML = '';
-
         const fechaActual = new Date();
         const año = fechaActual.getFullYear();
         const mes = fechaActual.getMonth();
@@ -81,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderizarCalendario();
 
-    // --- LÓGICA DE RUTINA FAVORITA ---
+    // --- FAVORITOS ---
     let rutinaActualData = null;
     const seccionFavorito = document.getElementById('seccion-favorito-guardado');
     const btnGuardarFavorito = document.getElementById('btn-guardar-favorito');
@@ -114,16 +112,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('edad').value = guardada.edad;
                 document.getElementById('objetivo').value = guardada.objetivo;
                 document.getElementById('dias').value = guardada.dias;
-
                 formRutina.dispatchEvent(new Event('submit'));
             }
         });
     }
 
-    // --- BASE DE DATOS DE EJERCICIOS Y TIEMPOS DE DESCANSO ---
+    // --- BASE DE DATOS DE EJERCICIOS ---
     const baseEjercicios = {
         musculo: {
-            descanso: "90 - 120 segundos",
+            descanso: "90s",
             dias: [
                 ["Press de Banca plano (4x8-10)", "Aperturas con mancuernas (3x12)", "Press militar con barra (4x8)", "Elevaciones laterales (4x12)", "Extensiones de tríceps (3x12)"],
                 ["Dominadas o Jalón al pecho (4x8-10)", "Remo con barra (4x8)", "Remo en polea baja (3x12)", "Curl de bíceps con barra (3x10)", "Curl martillo (3x12)"],
@@ -133,7 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         grasa: {
-            descanso: "45 - 60 segundos",
+            descanso: "45s",
             dias: [
                 ["Sentadillas con salto (4x15)", "Flexiones de pecho (4x12)", "Zancadas dinámicas (3x12 por pierna)", "Plancha abdominal (3x 45 seg)"],
                 ["Burpees (4x10)", "Remo con mancuernas (4x12)", "Mountain Climbers (3x 45 seg)", "Elevaciones de piernas (3x15)"],
@@ -143,7 +140,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         fuerza: {
-            descanso: "3 - 5 minutos",
+            descanso: "180s",
             dias: [
                 ["Sentadilla trasera pesada (5x5)", "Press de banca pesado (5x5)", "Dominadas lastradas (4x6)", "Face pulls (3x12)"],
                 ["Peso muerto convencional (4x3-5)", "Press militar estricto (4x5)", "Remo pendlay (4x6)", "Encogimientos con barra (3x8)"],
@@ -153,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         tonificacion: {
-            descanso: "60 segundos",
+            descanso: "60s",
             dias: [
                 ["Sentadillas libres (4x12)", "Puente de glúteos (4x15)", "Press de hombros con mancuernas (3x12)", "Plancha abdominal (3x 45 seg)"],
                 ["Zancadas estáticas (3x12)", "Curl de bíceps (3x12)", "Patada de tríceps (3x12)", "Elevaciones laterales (3x15)"],
@@ -163,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         resistencia: {
-            descanso: "30 - 45 segundos",
+            descanso: "30s",
             dias: [
                 ["Circuito: Sentadillas + Jumping Jacks + Skipping (4 rondas de 45s c/u)", "Flexiones continuas (3x máx)", "Abdominales dinámicos (3x 1 min)"],
                 ["Circuito: Zancadas + Mountain Climbers + Burpees (4 rondas de 45s c/u)", "Plancha frontal con movimiento (3x 45s)"],
@@ -173,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         movilidad: {
-            descanso: "30 segundos",
+            descanso: "30s",
             dias: [
                 ["Movilidad articular de hombros y cuello (3 series)", "Rotaciones torácicas en suelo (3x10)", "Sentadilla profunda asistida (3x 45s)", "Estiramiento de cadena posterior (3x 45s)"],
                 ["Apertura de caderas en posición de lagartija (3x10)", "Gato-Vaca para columna (3x15)", "Movilidad de muñecas y tobillos (3 series)"],
@@ -183,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         calistenia: {
-            descanso: "90 segundos",
+            descanso: "90s",
             dias: [
                 ["Dominadas estrictas (4x max)", "Flexiones diamante (4x12)", "Australian pull-ups (4x12)", "Plancha abdominal (3x 1 min)"],
                 ["Fondos en paralelas (4x8-10)", "Flexiones declinadas (4x12)", "Elevaciones de piernas colgado (3x10)", "Sentadillas pistol asistidas (3x8)"],
@@ -194,7 +191,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- GENERADOR DE RUTINAS, NUTRICIÓN Y CRONÓMETRO ---
+    // --- GENERADOR ---
     if (formRutina) {
         formRutina.addEventListener('submit', (e) => {
             e.preventDefault();
@@ -215,44 +212,34 @@ document.addEventListener('DOMContentLoaded', () => {
             const textoObjetivo = objetivoSelect.options[objetivoSelect.selectedIndex].text;
 
             tituloPlan.textContent = `Plan: ${textoObjetivo}`;
-            subPlan.textContent = `Perfil: ${peso}kg | ${altura}cm | ${edad} años`;
+            subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | ${diasSeleccionados} Días por semana`;
 
-            // CÁLCULO DE CALORÍAS Y MACRONUTRIENTES
+            // CÁLCULO DE MACROS
             let tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5; 
-            let factorActividad = 1.375;
-            if (diasSeleccionados >= 3 && diasSeleccionados <= 4) factorActividad = 1.55;
-            if (diasSeleccionados >= 5) factorActividad = 1.725;
+            let factorActividad = diasSeleccionados >= 5 ? 1.725 : (diasSeleccionados >= 3 ? 1.55 : 1.375);
+            let caloriasObjetivo = Math.round(tmb * factorActividad);
+            
+            if (objetivo === 'grasa') caloriasObjetivo -= 400;
+            if (objetivo === 'musculo' || objetivo === 'fuerza') caloriasObjetivo += 300;
 
-            let caloriasMantenimiento = tmb * factorActividad;
-            let caloriasObjetivo = caloriasMantenimiento;
             let gramosProteina = Math.round(peso * 2.0);
-
-            if (objetivo === 'grasa') {
-                caloriasObjetivo -= 400;
-            } else if (objetivo === 'musculo' || objetivo === 'fuerza') {
-                caloriasObjetivo += 300;
-            }
-
-            caloriasObjetivo = Math.round(caloriasObjetivo);
             let gramosGrasa = Math.round((caloriasObjetivo * 0.25) / 9);
             let gramosCarbos = Math.round((caloriasObjetivo - (gramosProteina * 4) - (gramosGrasa * 9)) / 4);
 
             const datosPlan = baseEjercicios[objetivo] || baseEjercicios['musculo'];
             
-            listaRutinas.innerHTML = `<p style="color: var(--text-muted); text-align: center; padding: 10px;">Calculando plan y nutrición...</p>`;
+            listaRutinas.innerHTML = `<p style="text-align: center; padding: 10px;">Generando tu plan personalizado...</p>`;
             
             setTimeout(() => {
-                let htmlEjercicios = `
-                    <!-- TARJETA DE NUTRICIÓN Y MACROS (Usando clases idénticas a las tarjetas de ejercicios) -->
-                    <div class="dia-card" style="border: 2px solid var(--primary); margin-bottom: 16px;">
-                        <h4 style="color: var(--primary); margin-bottom: 12px; display: flex; align-items: center; gap: 8px;">
-                            🥗 Tu Meta Nutricional Diaria
-                        </h4>
-                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
-                            <div class="ejercicio-item" style="margin: 0; justify-content: flex-start;">🔥 <strong>Calorías:</strong> ~${caloriasObjetivo} kcal</div>
-                            <div class="ejercicio-item" style="margin: 0; justify-content: flex-start;">🥩 <strong>Proteínas:</strong> ~${gramosProteina} g</div>
-                            <div class="ejercicio-item" style="margin: 0; justify-content: flex-start;">🥑 <strong>Grasas:</strong> ~${gramosGrasa} g</div>
-                            <div class="ejercicio-item" style="margin: 0; justify-content: flex-start;">🥔 <strong>Carbohidratos:</strong> ~${gramosCarbos} g</div>
+                // Tarjeta de Nutrición SIN BORDE
+                let htmlContenido = `
+                    <div class="dia-card">
+                        <h4 style="color: var(--primary, #38bdf8); margin-bottom: 12px;">🥗 Tu Meta Nutricional Diaria</h4>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;">
+                            <div class="ejercicio-item" style="margin:0;">🔥 <strong>Calorías:</strong> ~${caloriasObjetivo} kcal</div>
+                            <div class="ejercicio-item" style="margin:0;">🥩 <strong>Proteínas:</strong> ~${gramosProteina} g</div>
+                            <div class="ejercicio-item" style="margin:0;">🥑 <strong>Grasas:</strong> ~${gramosGrasa} g</div>
+                            <div class="ejercicio-item" style="margin:0;">🥔 <strong>Carbohidratos:</strong> ~${gramosCarbos} g</div>
                         </div>
                     </div>
                 `;
@@ -260,56 +247,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 for(let i = 0; i < diasSeleccionados; i++) {
                     const ejerciciosDelDia = datosPlan.dias[i % datosPlan.dias.length];
                     
-                    htmlEjercicios += `
+                    htmlContenido += `
                         <div class="dia-card">
-                            <h4>Día ${i + 1}: Sesión de Entrenamiento</h4>
-                            <div style="display: flex; flex-direction: column; gap: 6px;">
+                            <h4>Día ${i + 1}: Fuerza y Rendimiento - Bloque ${i + 1}</h4>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
                     `;
 
                     ejerciciosDelDia.forEach(ejercicio => {
-                        htmlEjercicios += `
+                        htmlContenido += `
                             <div class="ejercicio-item" style="display: flex; justify-content: space-between; align-items: center;">
                                 <span>• ${ejercicio}</span>
                                 <div style="display: flex; align-items: center; gap: 8px;">
-                                    <button class="btn-timer" style="background: var(--primary); color: #000; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">⏱️ ${datosPlan.descanso.split(" ")[0]}s</button>
+                                    <button class="btn-timer" style="background: var(--primary, #38bdf8); color: #0b131e; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">⏱️ ${datosPlan.descanso}</button>
                                     <input type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
                                 </div>
                             </div>
                         `;
                     });
 
-                    htmlEjercicios += `
+                    htmlContenido += `
                             </div>
                         </div>
                     `;
                 }
 
-                listaRutinas.innerHTML = htmlEjercicios;
+                listaRutinas.innerHTML = htmlContenido;
 
-                // LÓGICA DE LOS BOTONES DE CRONÓMETRO EN CADA EJERCICIO
+                // ACTIVAR CRONÓMETROS INDIVIDUALES
                 const botonesTimer = listaRutinas.querySelectorAll('.btn-timer');
                 botonesTimer.forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        let tiempo = parseInt(datosPlan.descanso) || 90;
+                    btn.addEventListener('click', () => {
+                        let segundosTotales = parseInt(datosPlan.descanso) || 90;
                         let textoOriginal = btn.textContent;
                         btn.disabled = true;
 
                         let intervalo = setInterval(() => {
-                            let min = Math.floor(tiempo / 60);
-                            let seg = tiempo % 60;
+                            let min = Math.floor(segundosTotales / 60);
+                            let seg = segundosTotales % 60;
                             btn.textContent = `${min}:${seg < 10 ? '0' : ''}${seg}`;
 
-                            if (tiempo <= 0) {
+                            if (segundosTotales <= 0) {
                                 clearInterval(intervalo);
                                 btn.textContent = textoOriginal;
                                 btn.disabled = false;
                             }
-                            tiempo--;
+                            segundosTotales--;
                         }, 1000);
                     });
                 });
 
-            }, 250);
+            }, 200);
         });
     }
 
