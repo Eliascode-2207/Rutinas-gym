@@ -55,7 +55,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const alturaMetros = altura / 100;
             const imc = (peso / (alturaMetros * alturaMetros)).toFixed(1);
             
-            // Definir estado de peso según IMC y su recomendación nutricional
             let estadoImc = "Peso normal";
             let consejoNutricional = "";
 
@@ -72,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 consejoNutricional = "¡Estás en un peso saludable! Mantén una dieta equilibrada que mantenga tu energía: combina carbohidratos complejos, buenas porciones de proteína en cada comida, grasas saludables y vegetales variados para rendir al máximo en tus entrenamientos.";
             }
 
-            // Textos descriptivos para el plan
             const nombresObjetivo = {
                 musculo: "Ganancia de Masa Muscular (Hipertrofia)",
                 grasa: "Pérdida de Grasa y Definición",
@@ -97,8 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const diaCard = document.createElement('div');
                 diaCard.className = 'dia-card anime-fade-in';
                 
-                let ejerciciosHTML = diaInfo.ejercicios.map(ej => `
-                    <div class="ejercicio-item" data-nombre="${ej.nombre}" data-desc="${ej.desc}">
+                let ejerciciosHTML = diaInfo.ejercicios.map((ej, ejIndex) => `
+                    <div class="ejercicio-item" id="ej-${index}-${ejIndex}" data-nombre="${ej.nombre}" data-desc="${ej.desc}">
                         <div class="ejercicio-info">
                             <span class="material-icons">fitness_center</span>
                             <div>
@@ -106,9 +104,14 @@ document.addEventListener('DOMContentLoaded', () => {
                                 <p>${ej.series} series x ${ej.reps} reps</p>
                             </div>
                         </div>
-                        <button class="btn-timer-trigger" data-segundos="${ej.descanso}" title="Iniciar descanso">
-                            <span class="material-icons">timer</span> ${ej.descanso}s
-                        </button>
+                        <div class="ejercicio-acciones" style="display: flex; gap: 8px; align-items: center;">
+                            <button class="btn-timer-trigger" data-segundos="${ej.descanso}" title="Iniciar descanso">
+                                <span class="material-icons">timer</span> ${ej.descanso}s
+                            </button>
+                            <button class="btn-check-ejercicio" title="Marcar como hecho" style="background: transparent; border: 2px solid #3b82f6; border-radius: 8px; cursor: pointer; padding: 4px 6px; display: flex; align-items: center; color: #3b82f6;">
+                                <span class="material-icons" style="font-size: 1.2rem;">check</span>
+                            </button>
+                        </div>
                     </div>
                 `).join('');
 
@@ -139,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- 4. BANCO DE EJERCICIOS CON TIEMPOS DE DESCANSO SEGÚN OBJETIVO ---
+    // --- 4. BANCO DE EJERCICIOS ---
     function obtenerEjerciciosPorObjetivo(objetivo, dias) {
         const banco = {
             musculo: [
@@ -183,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return resultado;
     }
 
-    // --- 5. ACTIVAR EVENTOS DINÁMICOS (MODAL Y CRONÓMETRO) ---
+    // --- 5. ACTIVAR EVENTOS DINÁMICOS (MODAL, CRONÓMETRO Y AUTO-CHULOS) ---
     function activarEventosDinamicos() {
         const itemsEjercicio = document.querySelectorAll('.ejercicio-item');
         itemsEjercicio.forEach(item => {
@@ -199,11 +202,45 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const btnTimer = item.querySelector('.btn-timer-trigger');
+            const btnCheck = item.querySelector('.btn-check-ejercicio');
+
+            // Función para alternar el estado chuleado
+            const toggleChulear = () => {
+                item.classList.toggle('completado');
+                if(item.classList.contains('completado')) {
+                    item.style.opacity = '0.5';
+                    item.style.borderColor = '#10b981';
+                    if(btnCheck) {
+                        btnCheck.style.background = '#10b981';
+                        btnCheck.style.color = '#ffffff';
+                    }
+                } else {
+                    item.style.opacity = '1';
+                    item.style.borderColor = '';
+                    if(btnCheck) {
+                        btnCheck.style.background = 'transparent';
+                        btnCheck.style.color = '#3b82f6';
+                    }
+                }
+            };
+
             if(btnTimer) {
                 btnTimer.addEventListener('click', (e) => {
                     e.stopPropagation();
                     const segundosDescanso = parseInt(btnTimer.getAttribute('data-segundos')) || 60;
+                    
+                    // Al dar clic en descansar, inicia el cronómetro y chulea automáticamente el ejercicio
                     iniciarCronometro(segundosDescanso);
+                    if(!item.classList.contains('completado')) {
+                        toggleChulear();
+                    }
+                });
+            }
+
+            if(btnCheck) {
+                btnCheck.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    toggleChulear();
                 });
             }
         });
@@ -221,7 +258,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO (MUESTRA ARRIBA SIN MOVER LA PÁGINA) ---
+    // --- 6. FUNCIONALIDAD DEL CRONÓMETRO ---
     function iniciarCronometro(segundos) {
         detenerCronometro();
         if(cronometroBox) cronometroBox.classList.remove('oculto');
