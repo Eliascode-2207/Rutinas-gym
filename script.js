@@ -143,12 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function obtenerEjerciciosPorObjetivo(objetivo, dias) {
         const banco = {
             musculo: [
-                { nombre: "Press de Banca con Barra", desc: "Acuéstate en el banco plano, sujeta la barra un poco más abierta que tus hombros, baja de forma controlada al pecho y empuja con fuerza hacia arriba.", series: 4, reps: "8-10", descanso: 120 },
-                { nombre: "Sentadilla Libre", desc: "Coloca la barra sobre la parte alta de la espalda, mantén el core apretado, baja la cadera hacia atrás como si fueras a sentarte y sube.", series: 4, reps: "8-12", descanso: 120 },
-                { nombre: "Dominadas en Barra", desc: "Sujeta la barra con las manos hacia el frente, cuelga con los brazos extendidos y elévate hasta pasar la barbilla por encima de la barra.", series: 3, reps: "8-10", descanso: 90 },
-                { nombre: "Press Militar con Mancuernas", desc: "Sentado o de pie, sostén las mancuernas a la altura de los hombros y presiona verticalmente hacia arriba sin arquear la espalda.", series: 3, reps: "10-12", descanso: 90 },
-                { nombre: "Curl de Bíceps con Barra Z", desc: "De pie, sujeta la barra con agarre supino y flexiona los codos contrayendo los bíceps sin mover el tronco.", series: 3, reps: "12", descanso: 90 },
-                { nombre: "Extensiones de Tríceps en Polea", desc: "Agarra el mango de la polea alta, mantén los codos fijos a los costados y empuja hacia abajo extendiendo los brazos.", series: 3, reps: "12", descanso: 90 }
+                { nombre: "Press de Banca con Barra", desc: "Acuéstate en el banco plano, sujeta la barra un poco más abierta que tus hombros, baja de forma controlada al pecho y empuja con fuerza hacia arriba.", series: 4, reps: "8-10", descanso: 180 },
+                { nombre: "Sentadilla Libre", desc: "Coloca la barra sobre la parte alta de la espalda, mantén el core apretado, baja la cadera hacia atrás como si fueras a sentarte y sube.", series: 4, reps: "8-12", descanso: 180 },
+                { nombre: "Dominadas en Barra", desc: "Sujeta la barra con las manos hacia el frente, cuelga con los brazos extendidos y elévate hasta pasar la barbilla por encima de la barra.", series: 3, reps: "8-10", descanso: 180 },
+                { nombre: "Press Militar con Mancuernas", desc: "Sentado o de pie, sostén las mancuernas a la altura de los hombros y presiona verticalmente hacia arriba sin arquear la espalda.", series: 3, reps: "10-12", descanso: 180 },
+                { nombre: "Curl de Bíceps con Barra Z", desc: "De pie, sujeta la barra con agarre supino y flexiona los codos contrayendo los bíceps sin mover el tronco.", series: 3, reps: "12", descanso: 180 },
+                { nombre: "Extensiones de Tríceps en Polea", desc: "Agarra el mango de la polea alta, mantén los codos fijos a los costados y empuja hacia abajo extendiendo los brazos.", series: 3, reps: "12", descanso: 180 }
             ],
             grasa: [
                 { nombre: "Zancadas (Lunges) caminando", desc: "Da un paso al frente y baja la cadera hasta que ambas rodillas formen un ángulo de 90 grados, alterna las piernas de forma dinámica.", series: 4, reps: "12 por pierna", descanso: 45 },
