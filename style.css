@@ -492,3 +492,14 @@ form .form-row .styled-input {
     padding: 8px 6px !important;
     box-sizing: border-box !important;
 }
+
+/* --- ADAPTACIÓN DE LOS INPUTS EN MODO CLARO --- */
+body:not(.dark-mode) .styled-input {
+    background-color: #ffffff !important;
+    border-color: #cbd5e1 !important;
+    color: #1e293b !important;
+}
+
+body:not(.dark-mode) .styled-input::placeholder {
+    color: #94a3b8 !important;
+}
