@@ -69,7 +69,11 @@ document.addEventListener('DOMContentLoaded', () => {
             };
 
             if(tituloPlan) tituloPlan.textContent = `Plan: ${nombresObjetivo[objetivo]}`;
-            if(subPlan) subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | IMC: ${imc} (${estadoImc}) | ${dias} Días por semana`;
+            
+            // Subtítulo actualizado incluyendo Peso, Altura, Edad e IMC
+            if(subPlan) {
+                subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | IMC: ${imc} (${estadoImc}) | ${dias} Días por semana`;
+            }
 
             // Generar estructura de días y ejercicios
             if(listaRutinas) listaRutinas.innerHTML = '';
@@ -102,7 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(listaRutinas) listaRutinas.appendChild(diaCard);
             });
 
-            // Ocultar solo el formulario usando la clase oculto de tu CSS
+            // Ocultar formulario y mostrar resultados
             formRutina.classList.add('oculto');
             if(resultadoContainer) resultadoContainer.classList.remove('oculto');
             
@@ -247,4 +251,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
