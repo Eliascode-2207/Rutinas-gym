@@ -493,20 +493,17 @@ form .form-row .styled-input {
     box-sizing: border-box !important;
 }
 
-/* --- ADAPTACIÓN TOTAL DE CAMPOS E INPUTS EN MODO CLARO (MÓVIL Y PC) --- */
+/* --- FORZAR MODO CLARO EN INPUTS (MÓVIL Y PC) --- */
+html:not(.dark-mode) .styled-input,
 body:not(.dark-mode) .styled-input,
-body:not(.dark-mode) .styled-select {
+.card:not(.dark-mode) .styled-input {
     background-color: #ffffff !important;
+    background: #ffffff !important;
     border: 1px solid #cbd5e1 !important;
     color: #1e293b !important;
 }
 
+html:not(.dark-mode) .styled-input::placeholder,
 body:not(.dark-mode) .styled-input::placeholder {
     color: #94a3b8 !important;
-}
-
-/* Forzar color de las flechas o textos internos en selectores para modo claro */
-body:not(.dark-mode) option {
-    background-color: #ffffff !important;
-    color: #1e293b !important;
 }
