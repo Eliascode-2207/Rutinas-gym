@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- BASE DE DATOS DE EJERCICIOS (Tiempos actualizados) ---
     const baseEjercicios = {
         musculo: {
-            descanso: "180s", // 3 minutos para ganancia muscular
+            descanso: "180s", 
             dias: [
                 ["Press de Banca plano (4x8-10)", "Aperturas con mancuernas (3x12)", "Press militar con barra (4x8)", "Elevaciones laterales (4x12)", "Extensiones de tríceps (3x12)"],
                 ["Dominadas o Jalón al pecho (4x8-10)", "Remo con barra (4x8)", "Remo en polea baja (3x12)", "Curl de bíceps con barra (3x10)", "Curl martillo (3x12)"],
@@ -142,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         grasa: {
-            descanso: "90s", // 1 minuto y 30 segundos para pérdida de grasa
+            descanso: "90s", 
             dias: [
                 ["Sentadillas con salto (4x15)", "Flexiones de pecho (4x12)", "Zancadas dinámicas (3x12 por pierna)", "Plancha abdominal (3x 45 seg)"],
                 ["Burpees (4x10)", "Remo con mancuernas (4x12)", "Mountain Climbers (3x 45 seg)", "Elevaciones de piernas (3x15)"],
@@ -152,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         fuerza: {
-            descanso: "180s", // 3 minutos para fuerza pura
+            descanso: "180s", 
             dias: [
                 ["Sentadilla trasera pesada (5x5)", "Press de banca pesado (5x5)", "Dominadas lastradas (4x6)", "Face pulls (3x12)"],
                 ["Peso muerto convencional (4x3-5)", "Press militar estricto (4x5)", "Remo pendlay (4x6)", "Encogimientos con barra (3x8)"],
@@ -231,26 +231,40 @@ document.addEventListener('DOMContentLoaded', () => {
         "Plancha abdominal (3x 45 seg)": ["Plancha lateral (3x 30 seg c/u)", "Abdominales crunch (3x20)", "Elevación de piernas colgado (3x12)"]
     };
 
-    // Función global para intercambiar ejercicio
+    // Mapeo dinámico para recordar el ciclo de cambios por cada elemento en pantalla sin perder el hilo original
+    const historialCambiosDOM = new WeakMap();
+
+    // MEJORA: Función global robusta para intercambiar y re-intercambiar ejercicios infinitamente en bucle
     window.cambiarEjercicio = function(btnElemento) {
         const itemEjercicio = btnElemento.closest('.ejercicio-item');
         const spanNombre = itemEjercicio.querySelector('.nombre-ejercicio');
         if (!spanNombre) return;
 
-        let textoActualCompleto = spanNombre.textContent.replace('•', '').trim();
-        let alternativas = sustitutosEjercicios[textoActualCompleto];
+        // Si es la primera vez que se interactúa con este elemento visual específico, guardamos su estado inicial
+        if (!historialCambiosDOM.has(itemEjercicio)) {
+            const textoActualCompleto = spanNombre.textContent.replace('•', '').trim();
+            let listaAlternativas = sustitutosEjercicios[textoActualCompleto];
 
-        if (!alternativas || alternativas.length === 0) {
-            alert("No hay alternativas directas configuradas para este ejercicio.");
-            return;
+            if (!listaAlternativas || listaAlternativas.length === 0) {
+                alert("No hay alternativas directas configuradas para este ejercicio.");
+                return;
+            }
+
+            // Creamos una lista completa que incluye el original y todas sus opciones rotativas
+            historialCambiosDOM.set(itemEjercicio, {
+                original: textoActualCompleto,
+                ciclo: [textoActualCompleto, ...listaAlternativas],
+                indiceActual: 0
+            });
         }
 
-        let nuevaAlternativa = alternativas[0];
+        const datosItem = historialCambiosDOM.get(itemEjercicio);
         
-        sustitutosEjercicios[textoActualCompleto] = alternativas.slice(1);
-        sustitutosEjercicios[textoActualCompleto].push(textoActualCompleto);
-
-        spanNombre.textContent = `• ${nuevaAlternativa}`;
+        // Avanzamos al siguiente índice del ciclo de forma circular
+        datosItem.indiceActual = (datosItem.indiceActual + 1) % datosItem.ciclo.length;
+        
+        // Aplicamos el texto correspondiente al ejercicio actual
+        spanNombre.textContent = `• ${datosItem.ciclo[datosItem.indiceActual]}`;
     };
 
     // --- GENERADOR ---
@@ -299,7 +313,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (imc >= 30) clasificacionImc = "Obesidad";
 
             tituloPlan.textContent = `Plan: ${textoObjetivo}`;
-            // MEJORA APLICADA: Se añadió explícitamente la altura junto al peso, edad, nivel, IMC y días.
             subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | Nivel: ${textoNivel} | IMC: ${imc} (${clasificacionImc}) | ${diasSeleccionados} Días/sem`;
 
             let tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5; 
