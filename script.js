@@ -299,7 +299,8 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (imc >= 30) clasificacionImc = "Obesidad";
 
             tituloPlan.textContent = `Plan: ${textoObjetivo}`;
-            subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Nivel: ${textoNivel} | IMC: ${imc} (${clasificacionImc}) | ${diasSeleccionados} Días/sem`;
+            // MEJORA APLICADA: Se añadió explícitamente la altura junto al peso, edad, nivel, IMC y días.
+            subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | Nivel: ${textoNivel} | IMC: ${imc} (${clasificacionImc}) | ${diasSeleccionados} Días/sem`;
 
             let tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5; 
             let factorActividad = diasSeleccionados >= 5 ? 1.725 : (diasSeleccionados >= 3 ? 1.55 : 1.375);
