@@ -6,19 +6,27 @@ document.addEventListener('DOMContentLoaded', () => {
     const tituloPlan = document.getElementById('titulo-plan');
     const subPlan = document.getElementById('sub-plan');
 
-    // MODO OSCURO / CLARO
+   // --- MODO OSCURO / CLARO ---
     const btnModoOscuro = document.getElementById('btn-modo-oscuro');
     const iconoTheme = document.getElementById('icono-theme');
     
-    if (localStorage.getItem('theme') === 'light') {
+    // Aplicar tema guardado al cargar la página de forma segura
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'light') {
         document.body.classList.add('light-mode');
         document.documentElement.classList.add('light-mode');
         if (iconoTheme) iconoTheme.textContent = 'light_mode';
+    } else {
+        document.body.classList.remove('light-mode');
+        document.documentElement.classList.remove('light-mode');
+        if (iconoTheme) iconoTheme.textContent = 'dark_mode';
     }
 
     if (btnModoOscuro) {
         btnModoOscuro.addEventListener('click', (e) => {
             e.preventDefault();
+            
+            // Alternar clases en el documento y el body
             document.body.classList.toggle('light-mode');
             document.documentElement.classList.toggle('light-mode');
             
@@ -30,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-
     // --- CALENDARIO DE RACHAS ---
     function renderizarCalendario() {
         const gridCalendario = document.getElementById('grid-calendario');
@@ -322,7 +329,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const datosPlan = baseEjercicios[objetivo] || baseEjercicios['musculo'];
             
-            // Ajustar tiempo de descanso según el nivel seleccionado
             let tiempoDescansoFinal = datosPlan.descanso;
             if (nivelExperiencia === 'principiante') {
                 tiempoDescansoFinal = "90s";
@@ -375,7 +381,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 listaRutinas.innerHTML = htmlContenido;
 
-                // ACTIVAR CRONÓMETROS (CON BARRA FLOTANTE SUPERIOR)
                 const barraGlobal = document.getElementById('barra-cronometro-global');
                 const textoGlobal = document.getElementById('tiempo-global-texto');
                 let intervaloGlobal = null;
