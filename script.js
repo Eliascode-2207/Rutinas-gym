@@ -55,7 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderizarCalendario();
 
-    // --- HISTORIAL DE ENTRENAMIENTOS ---
+    // --- HISTORIAL DE ENTRENAMIENTOS CON HORA ---
     const btnFinalizarRutina = document.getElementById('btn-finalizar-rutina');
     const listaHistorialContainer = document.getElementById('lista-historial');
 
@@ -71,9 +71,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let htmlHistorial = '';
         historial.slice().reverse().forEach(sesion => {
+            const infoHora = sesion.hora ? ` a las ${sesion.hora}` : ' (Hora no registrada)';
             htmlHistorial += `
                 <div style="background: var(--serie-bg, #f1f5f9); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--serie-border, #cbd5e1); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
-                    <span>📅 <strong>${sesion.fecha}</strong></span>
+                    <span>📅 <strong>${sesion.fecha}</strong>${infoHora}</span>
                     <span style="color: var(--primary, #0ea5e9); font-weight: bold;">💪 ${sesion.objetivo}</span>
                 </div>
             `;
@@ -87,23 +88,31 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnFinalizarRutina) {
         btnFinalizarRutina.addEventListener('click', () => {
             const fechaHoy = new Date().toISOString().split('T')[0];
+            const horaActual = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
             let historial = JSON.parse(localStorage.getItem('historial_entrenamientos')) || [];
 
-            const yaRegistrado = historial.some(s => s.fecha === fechaHoy);
-            if (yaRegistrado) {
-                alert('¡Ya registraste un entrenamiento para el día de hoy! 🚀');
-                return;
-            }
+            // Buscar si ya existe un registro para el día de hoy
+            const indiceExistente = historial.findIndex(s => s.fecha === fechaHoy);
 
             const objetivoSelect = document.getElementById('objetivo');
             const textoObjetivo = objetivoSelect ? objetivoSelect.options[objetivoSelect.selectedIndex].text : 'Rutina Personalizada';
 
             const nuevaSesion = {
                 fecha: fechaHoy,
+                hora: horaActual,
                 objetivo: textoObjetivo
             };
 
-            historial.push(nuevaSesion);
+            if (indiceExistente !== -1) {
+                // Si ya existe, limpiamos el viejo y lo reemplazamos por el nuevo con la hora actualizada
+                historial[indiceExistente] = nuevaSesion;
+            } else {
+                // Si no existe, lo agregamos normalmente
+                historial.push(nuevaSesion);
+            }
+
+            // Guardar el historial actualizado en el localStorage
             localStorage.setItem('historial_entrenamientos', JSON.stringify(historial));
 
             let diasEntrenados = JSON.parse(localStorage.getItem('dias_entrenados')) || [];
@@ -114,7 +123,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             renderizarHistorial();
-            alert('¡Entrenamiento registrado y guardado en tu historial con éxito! 🎉');
+            
+            const mensajeAccion = indiceExistente !== -1 ? '¡Registro actualizado con la hora actual!' : '¡Entrenamiento registrado con éxito!';
+            alert(`${mensajeAccion} 🚀 (${horaActual})`);
         });
     }
 
