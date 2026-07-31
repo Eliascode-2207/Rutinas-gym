@@ -54,7 +54,7 @@
                     </select>
                 </div>
 
-                <!-- NUEVO: SELECTOR DE NIVEL DE EXPERIENCIA -->
+                <!-- SELECTOR DE NIVEL DE EXPERIENCIA -->
                 <div class="form-group">
                     <label for="nivel">
                         <span class="material-icons input-icon">trending_up</span>
@@ -90,7 +90,6 @@
                 <div class="info-plan">
                     <div>
                         <h3 id="titulo-plan">Tu Plan Asignado</h3>
-                        <!-- Actualizado para mostrar dinámicamente la altura y demás métricas desde JS -->
                         <p id="sub-plan">Objetivo y Frecuencia</p>
                     </div>
                     <span class="material-icons large-icon">assignment_ind</span>
@@ -110,15 +109,34 @@
                     <!-- Los días y ejercicios se inyectarán aquí -->
                 </div>
 
-                <!-- Botones de Acción en Resultados (Regresar y Guardar Favorita) -->
-                <div style="display: flex; gap: 8px; margin-top: 16px;">
-                    <button id="btn-regresar" class="btn-secundario" style="flex: 1; margin-bottom: 0;">
+                <!-- NUEVO: Botón para finalizar la rutina del día -->
+                <button id="btn-finalizar-rutina" class="btn-secundario" style="background: #22c55e; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 15px; display: flex; justify-content: center; align-items: center; gap: 8px;">
+                    <span class="material-icons">check_circle</span> Marcar entrenamiento como completado
+                </button>
+
+                <!-- NUEVO: Sección visual del Historial de Sesiones -->
+                <div class="dia-card" style="margin-top: 16px; background: var(--card-bg, #ffffff); border: 1px solid var(--border-color, #e0e0e0); padding: 12px; border-radius: 8px;">
+                    <h4 style="color: var(--primary, #38bdf8); margin-bottom: 8px; display: flex; align-items: center; gap: 6px;">
+                        <span class="material-icons" style="font-size: 1.2rem;">bar_chart</span> Historial de Sesiones
+                    </h4>
+                    <div id="lista-historial" style="max-height: 180px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px;">
+                        <p style="color: var(--text-light, #777); font-size: 0.9rem; margin: 0;">Aún no hay entrenamientos registrados.</p>
+                    </div>
+                </div>
+
+                <!-- Botones de Acción en Resultados (Regresar, Guardar Favorita e Imprimir/PDF) -->
+                <div style="display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;">
+                    <button id="btn-regresar" class="btn-secundario" style="flex: 1; margin-bottom: 0; min-width: 120px;">
                         <span class="material-icons btn-start-icon">arrow_back</span>
-                        Volver a empezar
+                        Volver
                     </button>
-                    <button id="btn-guardar-favorito" class="btn-secundario" style="flex: 1; margin-bottom: 0; border-color: #059669; color: #059669;" title="Guardar esta rutina">
+                    <button id="btn-guardar-favorito" class="btn-secundario" style="flex: 1; margin-bottom: 0; border-color: #059669; color: #059669; min-width: 120px;" title="Guardar esta rutina">
                         <span class="material-icons btn-start-icon">bookmark</span>
-                        Guardar Favorita
+                        Favorita
+                    </button>
+                    <button id="btn-imprimir" class="btn-secundario" onclick="window.print()" style="flex: 1; margin-bottom: 0; border-color: #0ea5e9; color: #0ea5e9; min-width: 120px;" title="Imprimir o guardar PDF">
+                        <span class="material-icons btn-start-icon">print</span>
+                        PDF / Imprimir
                     </button>
                 </div>
             </div>

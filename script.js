@@ -43,6 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 localStorage.setItem('dias_entrenados', JSON.stringify(diasEntrenados));
                 renderizarCalendario();
+                renderizarHistorial();
             });
 
             gridCalendario.appendChild(celda);
@@ -53,6 +54,69 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     renderizarCalendario();
+
+    // --- HISTORIAL DE ENTRENAMIENTOS ---
+    const btnFinalizarRutina = document.getElementById('btn-finalizar-rutina');
+    const listaHistorialContainer = document.getElementById('lista-historial');
+
+    function renderizarHistorial() {
+        if (!listaHistorialContainer) return;
+        
+        let historial = JSON.parse(localStorage.getItem('historial_entrenamientos')) || [];
+        
+        if (historial.length === 0) {
+            listaHistorialContainer.innerHTML = `<p style="color: var(--text-light, #777); font-size: 0.9rem; margin: 0;">Aún no hay entrenamientos registrados.</p>`;
+            return;
+        }
+
+        let htmlHistorial = '';
+        historial.slice().reverse().forEach(sesion => {
+            htmlHistorial += `
+                <div style="background: var(--serie-bg, #f1f5f9); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--serie-border, #cbd5e1); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
+                    <span>📅 <strong>${sesion.fecha}</strong></span>
+                    <span style="color: var(--primary, #0ea5e9); font-weight: bold;">💪 ${sesion.objetivo}</span>
+                </div>
+            `;
+        });
+
+        listaHistorialContainer.innerHTML = htmlHistorial;
+    }
+
+    renderizarHistorial();
+
+    if (btnFinalizarRutina) {
+        btnFinalizarRutina.addEventListener('click', () => {
+            const fechaHoy = new Date().toISOString().split('T')[0];
+            let historial = JSON.parse(localStorage.getItem('historial_entrenamientos')) || [];
+
+            const yaRegistrado = historial.some(s => s.fecha === fechaHoy);
+            if (yaRegistrado) {
+                alert('¡Ya registraste un entrenamiento para el día de hoy! 🚀');
+                return;
+            }
+
+            const objetivoSelect = document.getElementById('objetivo');
+            const textoObjetivo = objetivoSelect ? objetivoSelect.options[objetivoSelect.selectedIndex].text : 'Rutina Personalizada';
+
+            const nuevaSesion = {
+                fecha: fechaHoy,
+                objetivo: textoObjetivo
+            };
+
+            historial.push(nuevaSesion);
+            localStorage.setItem('historial_entrenamientos', JSON.stringify(historial));
+
+            let diasEntrenados = JSON.parse(localStorage.getItem('dias_entrenados')) || [];
+            if (!diasEntrenados.includes(fechaHoy)) {
+                diasEntrenados.push(fechaHoy);
+                localStorage.setItem('dias_entrenados', JSON.stringify(diasEntrenados));
+                renderizarCalendario();
+            }
+
+            renderizarHistorial();
+            alert('¡Entrenamiento registrado y guardado en tu historial con éxito! 🎉');
+        });
+    }
 
     // --- FAVORITOS ---
     let rutinaActualData = null;
@@ -77,12 +141,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!btnGuardarFavorito) return;
         
         if (esRutinaFavoritaCargada) {
-            btnGuardarFavorito.textContent = '🗑️ Eliminar favorita';
+            btnGuardarFavorito.innerHTML = '<span class="material-icons btn-start-icon">delete</span> Eliminar favorita';
             btnGuardarFavorito.classList.add('btn-modo-eliminar');
             btnGuardarFavorito.classList.remove('oculto');
             btnGuardarFavorito.style.display = 'inline-block';
         } else {
-            btnGuardarFavorito.textContent = '⭐ Guardar en favoritos';
+            btnGuardarFavorito.innerHTML = '<span class="material-icons btn-start-icon">bookmark</span> Favorita';
             btnGuardarFavorito.classList.remove('btn-modo-eliminar');
             btnGuardarFavorito.classList.remove('oculto');
             btnGuardarFavorito.style.display = 'inline-block';
@@ -181,74 +245,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 ["Sentadilla frontal (4x5)", "Prensa pesada (4x6)", "Hip thrust pesado (4x6)", "Elevación de talones pesado (4x10)"],
                 ["Peso muerto rumano pesado (4x5)", "Press inclinado con barra (4x5)", "Dominadas neutras (4x6)", "Abdominales con peso (3x10)"]
             ]
-        },
-        tonificacion: {
-            descanso: "60s",
-            nombresDias: [
-                "Glúteos y Tonificación Superior",
-                "Brazos Definidos y Pierna Estática",
-                "Espalda, Pecho y Core",
-                "Piernas en Sumo y Pantorrillas",
-                "Caminata Activa y Hombros Livianos"
-            ],
-            dias: [
-                ["Sentadillas libres (4x12)", "Puente de glúteos (4x15)", "Press de hombros con mancuernas (3x12)", "Plancha abdominal (3x 45 seg)"],
-                ["Zancadas estáticas (3x12)", "Curl de bíceps (3x12)", "Patada de tríceps (3x12)", "Elevaciones laterales (3x15)"],
-                ["Peso muerto rumano con mancuernas (4x12)", "Aperturas de pecho (3x12)", "Remo inclinado con mancuernas (3x12)", "Abdominales en V (3x12)"],
-                ["Sentadillas sumo (4x12)", "Flexiones inclinadas (3x10)", "Elevación de talones (4x20)", "Abdominales crunch (3x15)"],
-                ["Zancadas caminando (3x12)", "Press Arnold liviano (3x12)", "Curl martillo (3x12)", "Plancha lateral (3x 30 seg)"]
-            ]
-        },
-        resistencia: {
-            descanso: "30s",
-            nombresDias: [
-                "Circuito Aeróbico 1",
-                "Circuito Aeróbico 2",
-                "Circuito Mixto con Salto",
-                "Circuito Piernas y Flexiones",
-                "Cardio Global de Alta Intensidad"
-            ],
-            dias: [
-                ["Circuito: Sentadillas + Jumping Jacks + Skipping (4 rondas de 45s c/u)", "Flexiones continuas (3x máx)", "Abdominales dinámicos (3x 1 min)"],
-                ["Circuito: Zancadas + Mountain Climbers + Burpees (4 rondas de 45s c/u)", "Plancha frontal con movimiento (3x 45s)"],
-                ["Circuito: Sentadillas con salto + Press militar liviano + Cuerda (4 rondas)"],
-                ["Circuito: Zancadas búlgaras + Flexiones abiertas + Escaladores (4 rondas)"],
-                ["Circuito aeróbico completo de cuerpo entero (5 rondas de alta intensidad)"]
-            ]
-        },
-        movilidad: {
-            descanso: "30s",
-            nombresDias: [
-                "Movilidad de Tren Superior y Cadena Posterior",
-                "Movilidad de Caderas y Columna",
-                "Estiramiento de Psoas y Tronco",
-                "Movilidad Escapular y Sentadillas",
-                "Estiramientos Globales y Respiración"
-            ],
-            dias: [
-                ["Movilidad articular de hombros y cuello (3 series)", "Rotaciones torácicas en suelo (3x10)", "Sentadilla profunda asistida (3x 45s)", "Estiramiento de cadena posterior (3x 45s)"],
-                ["Apertura de caderas en posición de lagartija (3x10)", "Gato-Vaca para columna (3x15)", "Movilidad de muñecas y tobillos (3 series)"],
-                ["Estiramiento de psoas y flexores de cadera (3x 45s)", "Rotaciones de tronco sentados (3x12)", "Postura del niño y cobra (3 series)"],
-                ["Movilidad escapular en pared (3x12)", "Apertura de pecho y hombros (3x 45s)", "Sentadilla cosaca dinámica (3x10)"],
-                ["Rutina completa de estiramientos globales y respiración diafragmática (15 mins)"]
-            ]
-        },
-        calistenia: {
-            descanso: "90s",
-            nombresDias: [
-                "Tracción y Dominadas",
-                "Empuje y Fondos en Paralelas",
-                "Tirón Supino y Hombros en Pica",
-                "Piernas Unilaterales y Core",
-                "Progresiones Avanzadas y Hollow Body"
-            ],
-            dias: [
-                ["Dominadas estrictas (4x max)", "Flexiones diamante (4x12)", "Australian pull-ups (4x12)", "Plancha abdominal (3x 1 min)"],
-                ["Fondos en paralelas (4x8-10)", "Flexiones declinadas (4x12)", "Elevaciones de piernas colgado (3x10)", "Sentadillas pistol asistidas (3x8)"],
-                ["Dominadas supinas (chin-ups) (4x8)", "Flexiones en pica para hombro (4x10)", "Remo invertido en barra (4x12)", "L-sit en suelo o paralelas (3x 20s)"],
-                ["Sentadillas libres a una pierna (3x8)", "Flexiones arquero (3x8 por lado)", "Puente de glúteos a una pierna (3x12)", "Abdominales windshield wipers (3x12)"],
-                ["Muscle-up o progresión de tirón (4x5)", "Fondos rusos (3x8)", "Flexiones explosivas con palmada (3x8)", "Plancha hollow body (3x 45s)"]
-            ]
         }
     };
 
@@ -262,7 +258,6 @@ document.addEventListener('DOMContentLoaded', () => {
         "Dominadas o Jalón al pecho (4x8-10)": ["Remo en polea baja (4x10)", "Dominadas asistidas (4x8)", "Remo con mancuerna (3x10)"],
         "Remo con barra (4x8)": ["Remo con mancuerna a una mano (4x10)", "Remo en polea baja (4x10)", "Remo en punta con barra (4x8)"],
         "Remo en polea baja (3x12)": ["Remo al pecho en máquina (3x12)", "Jalón al pecho agarre neutro (3x12)", "Remo con mancuernas (3x12)"],
-        "Dominadas estrictas (4x max)": ["Jalón al pecho pesado (4x10)", "Remo invertido en barra (4x12)", "Dominadas asistidas (4x8)"],
         "Sentadilla libre (4x8)": ["Prensa de pierna (4x10)", "Sentadilla Goblet con mancuerna (4x12)", "Zancadas con barra (3x10)"],
         "Prensa de pierna (4x10)": ["Sentadilla libre (4x8)", "Sentadilla Búlgara (3x10)", "Zancadas estáticas (3x12)"],
         "Extensiones de cuádriceps (3x12)": ["Zancadas caminando (3x12)", "Sentadilla Sissy (3x10)", "Prensa de piernas pies bajos (3x12)"],
@@ -274,10 +269,7 @@ document.addEventListener('DOMContentLoaded', () => {
         "Elevaciones laterales (4x12)": ["Elevaciones laterales en polea (3x12)", "Elevaciones laterales con bandas (3x15)", "Remo al mentón (3x10)"],
         "Extensiones de tríceps (3x12)": ["Press francés con barra Z (3x10)", "Fondos en paralelas (3x10)", "Extensiones en polea alta con cuerda (3x12)"],
         "Curl de bíceps con barra (3x10)": ["Curl con mancuernas alterno (3x12)", "Curl en banco Scott (3x10)", "Curl martillo con mancuernas (3x12)"],
-        "Curl martillo (3x12)": ["Curl con barra Z (3x10)", "Curl concentrado (3x12)", "Curl en polea baja (3x12)"],
-        "Sentadillas con salto (4x15)": ["Zancadas con salto (3x12)", "Burpees (3x10)", "Sentadillas libres rápidas (4x20)"],
-        "Burpees (4x10)": ["Jumping Jacks (4x 1 min)", "Mountain Climbers (4x 45 seg)", "Thrusters con peso liviano (4x10)"],
-        "Plancha abdominal (3x 45 seg)": ["Plancha lateral (3x 30 seg c/u)", "Abdominales crunch (3x20)", "Elevación de piernas colgado (3x12)"]
+        "Curl martillo (3x12)": ["Curl con barra Z (3x10)", "Curl concentrado (3x12)", "Curl en polea baja (3x12)"]
     };
 
     const historialCambiosDOM = new WeakMap();
@@ -411,13 +403,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 listaRutinas.innerHTML = htmlContenido;
 
-                const barraGlobal = document.getElementById('barra-cronometro-global');
-                const textoGlobal = document.getElementById('tiempo-global-texto');
-                let intervaloGlobal = null;
-
+                // --- LÓGICA DEL CRONÓMETRO DE DESCANSO ---
                 const botonesTimer = listaRutinas.querySelectorAll('.btn-timer');
+                let intervaloActual = null;
+
                 botonesTimer.forEach(btn => {
                     btn.addEventListener('click', () => {
+                        // Limpiamos los segundos del texto (ej. "180s" -> 180)
                         let segundosTotales = parseInt(tiempoDescansoFinal) || 90;
                         let textoOriginal = btn.textContent;
                         btn.disabled = true;
@@ -426,48 +418,34 @@ document.addEventListener('DOMContentLoaded', () => {
                         const checkbox = ejercicioItem.querySelector('.check-ejercicio');
                         if (checkbox) checkbox.checked = true;
 
-                        let alertaExistente = ejercicioItem.querySelector('.alerta-descanso-terminado');
-                        if (alertaExistente) alertaExistente.remove();
+                        let avisoExistente = ejercicioItem.querySelector('.alerta-descanso-terminado');
+                        if (avisoExistente) avisoExistente.remove();
 
-                        if (barraGlobal) {
-                            barraGlobal.style.background = 'linear-gradient(135deg, #0ea5e9, #2563eb)';
-                            barraGlobal.classList.add('activo');
-                        }
+                        if (intervaloActual) clearInterval(intervaloActual);
 
-                        if (intervaloGlobal) clearInterval(intervaloGlobal);
-
-                        intervaloGlobal = setInterval(() => {
+                        intervaloActual = setInterval(() => {
                             let min = Math.floor(segundosTotales / 60);
                             let seg = segundosTotales % 60;
-                            let tiempoFormateado = `${min}:${seg < 10 ? '0' : ''}${seg}`;
-                            
-                            btn.textContent = tiempoFormateado;
-                            if (textoGlobal) textoGlobal.textContent = tiempoFormateado;
+                            btn.textContent = `${min}:${seg < 10 ? '0' : ''}${seg}`;
 
                             if (segundosTotales <= 0) {
-                                clearInterval(intervaloGlobal);
+                                clearInterval(intervaloActual);
                                 btn.textContent = textoOriginal;
                                 btn.disabled = false;
-
-                                if (barraGlobal) {
-                                    barraGlobal.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
-                                    if (textoGlobal) textoGlobal.textContent = '¡TIEMPO TERMINADO! 💪';
-                                }
 
                                 const aviso = document.createElement('div');
                                 aviso.className = 'alerta-descanso-terminado';
                                 aviso.style.width = '100%';
-                                aviso.innerHTML = '🔥 ¡TIEMPO TERMINADO! ¡A darle con todo a la siguiente serie! 💪';
+                                aviso.style.color = '#22c55e';
+                                aviso.style.fontWeight = 'bold';
+                                aviso.style.fontSize = '0.8rem';
+                                aviso.style.marginTop = '4px';
+                                aviso.textContent = '🔥 ¡Tiempo terminado! ¡A darle con todo!';
                                 ejercicioItem.appendChild(aviso);
 
                                 setTimeout(() => {
-                                    if (barraGlobal) barraGlobal.classList.remove('activo');
-                                    if (aviso) {
-                                        aviso.style.transition = 'opacity 0.5s ease';
-                                        aviso.style.opacity = '0';
-                                        setTimeout(() => aviso.remove(), 500);
-                                    }
-                                }, 5000);
+                                    if (aviso) aviso.remove();
+                                }, 4000);
                             }
                             segundosTotales--;
                         }, 1000);
