@@ -20,28 +20,6 @@
     --serie-border: #cbd5e1;
 }
 
-/* --- VARIABLES PARA EL MODO OSCURO --- */
-body.dark-mode {
-    --primary: #38bdf8;
-    --primary-dark: #0284c7;
-    --text-dark: #f3f4f6;
-    --text-light: #9ca3af;
-    --bg-body: #0f172a;
-    --card-bg: #1e293b;
-    --border-color: #334155;
-    --shadow: 0 10px 30px rgba(0,0,0,0.5);
-    --select-bg: #0f172a;
-    --info-bg: linear-gradient(to right, #172554, #1e293b);
-    --info-text: #93c5fd;
-    --info-title: #bfdbfe;
-    --dia-bg: #0f172a;
-    --dia-text: #cbd5e1;
-    --dia-title: #f8fafc;
-    --btn-sec-hover: #334155;
-    --serie-bg: #334155;
-    --serie-border: #475569;
-}
-
 /* --- ESTILOS GENERALES --- */
 body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
