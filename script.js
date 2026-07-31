@@ -76,14 +76,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function actualizarBotonFavoritoUI() {
         if (!btnGuardarFavorito) return;
         
-        // Si se cargó desde favoritos, mostramos el botón como eliminar y visible en resultados
         if (esRutinaFavoritaCargada) {
             btnGuardarFavorito.textContent = '🗑️ Eliminar favorita';
             btnGuardarFavorito.classList.add('btn-modo-eliminar');
             btnGuardarFavorito.classList.remove('oculto');
             btnGuardarFavorito.style.display = 'inline-block';
         } else {
-            // Si viene de generar rutina nueva, mostramos guardar
             btnGuardarFavorito.textContent = '⭐ Guardar en favoritos';
             btnGuardarFavorito.classList.remove('btn-modo-eliminar');
             btnGuardarFavorito.classList.remove('oculto');
@@ -97,7 +95,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 localStorage.removeItem('rutina_favorita');
                 esRutinaFavoritaCargada = false;
                 alert('Rutina eliminada de favoritos.');
-                // Al eliminar, regresamos al formulario o actualizamos estado
                 resultadoContainer.classList.add('oculto');
                 formRutina.style.display = 'block';
                 verificarFavoritoGuardado();
@@ -126,17 +123,16 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('nivel').value = guardada.nivel;
                 }
                 
-                // Marcamos que esta rutina proviene de favoritos cargados
                 esRutinaFavoritaCargada = true;
                 formRutina.dispatchEvent(new Event('submit'));
             }
         });
     }
 
-    // --- BASE DE DATOS DE EJERCICIOS ---
+    // --- BASE DE DATOS DE EJERCICIOS (Tiempos actualizados) ---
     const baseEjercicios = {
         musculo: {
-            descanso: "90s",
+            descanso: "180s", // 3 minutos para ganancia muscular
             dias: [
                 ["Press de Banca plano (4x8-10)", "Aperturas con mancuernas (3x12)", "Press militar con barra (4x8)", "Elevaciones laterales (4x12)", "Extensiones de tríceps (3x12)"],
                 ["Dominadas o Jalón al pecho (4x8-10)", "Remo con barra (4x8)", "Remo en polea baja (3x12)", "Curl de bíceps con barra (3x10)", "Curl martillo (3x12)"],
@@ -146,7 +142,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         grasa: {
-            descanso: "45s",
+            descanso: "90s", // 1 minuto y 30 segundos para pérdida de grasa
             dias: [
                 ["Sentadillas con salto (4x15)", "Flexiones de pecho (4x12)", "Zancadas dinámicas (3x12 por pierna)", "Plancha abdominal (3x 45 seg)"],
                 ["Burpees (4x10)", "Remo con mancuernas (4x12)", "Mountain Climbers (3x 45 seg)", "Elevaciones de piernas (3x15)"],
@@ -156,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         fuerza: {
-            descanso: "180s",
+            descanso: "180s", // 3 minutos para fuerza pura
             dias: [
                 ["Sentadilla trasera pesada (5x5)", "Press de banca pesado (5x5)", "Dominadas lastradas (4x6)", "Face pulls (3x12)"],
                 ["Peso muerto convencional (4x3-5)", "Press militar estricto (4x5)", "Remo pendlay (4x6)", "Encogimientos con barra (3x8)"],
@@ -271,10 +267,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             rutinaActualData = { peso, altura, edad, objetivo, dias: diasSeleccionados, nivel: nivelExperiencia };
             
-            // Si el evento no vino de cargar favorito explícitamente, determinamos si coincide con uno guardado o es nuevo
             if (!esRutinaFavoritaCargada) {
                 const guardadaCheck = JSON.parse(localStorage.getItem('rutina_favorita'));
-                // Si hay una favorita guardada pero se generan datos nuevos distintos, no se marca como favorita cargada por defecto
                 if (guardadaCheck && guardadaCheck.objetivo === objetivo && guardadaCheck.dias === diasSeleccionados && guardadaCheck.peso === peso) {
                     esRutinaFavoritaCargada = true;
                 } else {
@@ -321,11 +315,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const datosPlan = baseEjercicios[objetivo] || baseEjercicios['musculo'];
             
             let tiempoDescansoFinal = datosPlan.descanso;
-            if (nivelExperiencia === 'principiante') {
-                tiempoDescansoFinal = "90s";
-            } else if (nivelExperiencia === 'avanzado' && objetivo === 'fuerza') {
-                tiempoDescansoFinal = "180s";
-            }
             
             listaRutinas.innerHTML = `<p style="text-align: center; padding: 10px;">Generando tu plan personalizado...</p>`;
             
