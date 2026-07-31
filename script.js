@@ -6,38 +6,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const tituloPlan = document.getElementById('titulo-plan');
     const subPlan = document.getElementById('sub-plan');
 
-   // --- MODO OSCURO / CLARO ---
-    const btnModoOscuro = document.getElementById('btn-modo-oscuro');
-    const iconoTheme = document.getElementById('icono-theme');
-    
-    // Aplicar tema guardado al cargar la página de forma segura
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light') {
-        document.body.classList.add('light-mode');
-        document.documentElement.classList.add('light-mode');
-        if (iconoTheme) iconoTheme.textContent = 'light_mode';
-    } else {
-        document.body.classList.remove('light-mode');
-        document.documentElement.classList.remove('light-mode');
-        if (iconoTheme) iconoTheme.textContent = 'dark_mode';
-    }
-
-    if (btnModoOscuro) {
-        btnModoOscuro.addEventListener('click', (e) => {
-            e.preventDefault();
-            
-            // Alternar clases en el documento y el body
-            document.body.classList.toggle('light-mode');
-            document.documentElement.classList.toggle('light-mode');
-            
-            const isLight = document.body.classList.contains('light-mode');
-            localStorage.setItem('theme', isLight ? 'light' : 'dark');
-            
-            if (iconoTheme) {
-                iconoTheme.textContent = isLight ? 'light_mode' : 'dark_mode';
-            }
-        });
-    }
     // --- CALENDARIO DE RACHAS ---
     function renderizarCalendario() {
         const gridCalendario = document.getElementById('grid-calendario');
