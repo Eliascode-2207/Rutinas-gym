@@ -945,3 +945,15 @@ header p {
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Forzar estado normal cuando la rutina es favorita (Borde y letras rojas, fondo transparente) */
+.btn-modo-eliminar {
+    background-color: transparent !important;
+    border: 2px solid #ef4444 !important;
+    color: #ef4444 !important;
+}
+
+/* Forzar estado al pasar el cursor (Fondo rojo y letras blancas) */
+.btn-modo-eliminar:hover {
+    background-color: #ef4444 !important;
+    color: #ffffff !important;
+}

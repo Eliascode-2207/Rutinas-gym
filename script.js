@@ -81,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- FAVORITOS ---
     let rutinaActualData = null;
+    let esRutinaFavoritaCargada = false;
     const seccionFavorito = document.getElementById('seccion-favorito-guardado');
     const btnGuardarFavorito = document.getElementById('btn-guardar-favorito');
     const btnCargarFavorito = document.getElementById('btn-cargar-favorito');
@@ -89,16 +90,41 @@ document.addEventListener('DOMContentLoaded', () => {
         const guardada = localStorage.getItem('rutina_favorita');
         if (guardada && seccionFavorito) {
             seccionFavorito.classList.remove('oculto');
+        } else if (seccionFavorito) {
+            seccionFavorito.classList.add('oculto');
         }
     }
     verificarFavoritoGuardado();
 
+    function actualizarBotonFavoritoUI() {
+        if (!btnGuardarFavorito) return;
+        if (esRutinaFavoritaCargada) {
+            btnGuardarFavorito.textContent = '🗑️ Eliminar favorita';
+            btnGuardarFavorito.classList.add('btn-modo-eliminar');
+        } else {
+            btnGuardarFavorito.textContent = '⭐ Guardar en favoritos';
+            btnGuardarFavorito.classList.remove('btn-modo-eliminar');
+        }
+    }
+
     if (btnGuardarFavorito) {
         btnGuardarFavorito.addEventListener('click', () => {
-            if (rutinaActualData) {
-                localStorage.setItem('rutina_favorita', JSON.stringify(rutinaActualData));
-                alert('¡Rutina guardada en favoritos con éxito! ⭐');
+            if (esRutinaFavoritaCargada) {
+                // Eliminar de favoritos
+                localStorage.removeItem('rutina_favorita');
+                esRutinaFavoritaCargada = false;
+                actualizarBotonFavoritoUI();
                 verificarFavoritoGuardado();
+                alert('Rutina eliminada de favoritos.');
+            } else {
+                // Guardar en favoritos
+                if (rutinaActualData) {
+                    localStorage.setItem('rutina_favorita', JSON.stringify(rutinaActualData));
+                    esRutinaFavoritaCargada = true;
+                    actualizarBotonFavoritoUI();
+                    alert('¡Rutina guardada en favoritos con éxito! ⭐');
+                    verificarFavoritoGuardado();
+                }
             }
         });
     }
@@ -112,6 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('edad').value = guardada.edad;
                 document.getElementById('objetivo').value = guardada.objetivo;
                 document.getElementById('dias').value = guardada.dias;
+                esRutinaFavoritaCargada = true;
                 formRutina.dispatchEvent(new Event('submit'));
             }
         });
@@ -203,6 +230,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const diasSeleccionados = parseInt(document.getElementById('dias').value);
 
             rutinaActualData = { peso, altura, edad, objetivo, dias: diasSeleccionados };
+            
+            // Verificar si esta rutina coincide con la guardada en favoritos
+            const guardadaCheck = JSON.parse(localStorage.getItem('rutina_favorita'));
+            if (guardadaCheck && guardadaCheck.objetivo === objetivo && guardadaCheck.dias === diasSeleccionados) {
+                esRutinaFavoritaCargada = true;
+            }
+            actualizarBotonFavoritoUI();
 
             formRutina.style.display = 'none';
             if (seccionFavorito) seccionFavorito.style.display = 'none';
@@ -310,6 +344,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (btnRegresar) {
         btnRegresar.addEventListener('click', () => {
+            esRutinaFavoritaCargada = false;
+            actualizarBotonFavoritoUI();
             resultadoContainer.classList.add('oculto');
             formRutina.style.display = 'block';
             verificarFavoritoGuardado();
