@@ -6,8 +6,6 @@
     <title>Power Gym | Generador de Rutinas</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
-    <!-- Librería para descarga directa de PDF -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
 
@@ -126,23 +124,19 @@
                     </div>
                 </div>
 
-                <!-- Botones de Acción en Resultados (Regresar, Guardar Favorita, Descargar PDF y Imprimir) -->
+                <!-- Botones de Acción en Resultados (Regresar, Guardar Favorita e Imprimir/PDF) -->
                 <div style="display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap;">
-                    <button id="btn-regresar" class="btn-secundario" style="flex: 1; margin-bottom: 0; min-width: 100px;">
+                    <button id="btn-regresar" class="btn-secundario" style="flex: 1; margin-bottom: 0; min-width: 120px;">
                         <span class="material-icons btn-start-icon">arrow_back</span>
                         Volver
                     </button>
-                    <button id="btn-guardar-favorito" class="btn-secundario" style="flex: 1; margin-bottom: 0; border-color: #059669; color: #059669; min-width: 100px;" title="Guardar esta rutina">
+                    <button id="btn-guardar-favorito" class="btn-secundario" style="flex: 1; margin-bottom: 0; border-color: #059669; color: #059669; min-width: 120px;" title="Guardar esta rutina">
                         <span class="material-icons btn-start-icon">bookmark</span>
                         Favorita
                     </button>
-                    <button id="btn-descargar-pdf" class="btn-secundario" style="flex: 1; margin-bottom: 0; border-color: #10b981; color: #10b981; min-width: 100px;" title="Descargar PDF automáticamente">
-                        <span class="material-icons btn-start-icon">download</span>
-                        Descargar PDF
-                    </button>
-                    <button id="btn-imprimir" class="btn-secundario" onclick="window.print()" style="flex: 1; margin-bottom: 0; border-color: #0ea5e9; color: #0ea5e9; min-width: 100px;" title="Imprimir o guardar tradicional">
+                    <button id="btn-imprimir" class="btn-secundario" onclick="window.print()" style="flex: 1; margin-bottom: 0; border-color: #0ea5e9; color: #0ea5e9; min-width: 120px;" title="Imprimir o guardar PDF">
                         <span class="material-icons btn-start-icon">print</span>
-                        Imprimir
+                        PDF / Imprimir
                     </button>
                 </div>
             </div>
