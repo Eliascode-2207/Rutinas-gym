@@ -123,17 +123,23 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('nivel').value = guardada.nivel;
                 }
                 
-                // Al cargar la favorita activamos el estado de eliminación en el botón
                 esRutinaFavoritaCargada = true;
                 formRutina.dispatchEvent(new Event('submit'));
             }
         });
     }
 
-    // --- BASE DE DATOS DE EJERCICIOS ---
+    // --- BASE DE DATOS DE EJERCICIOS Y NOMBRES DE LOS DÍAS ---
     const baseEjercicios = {
         musculo: {
             descanso: "180s", 
+            nombresDias: [
+                "Empuje (Pecho, Hombros y Tríceps)",
+                "Tirón (Espalda y Bíceps)",
+                "Piernas (Cuádriceps y Femorales)",
+                "Torso y Accesorios",
+                "Cadena Posterior y Abdomen"
+            ],
             dias: [
                 ["Press de Banca plano (4x8-10)", "Aperturas con mancuernas (3x12)", "Press militar con barra (4x8)", "Elevaciones laterales (4x12)", "Extensiones de tríceps (3x12)"],
                 ["Dominadas o Jalón al pecho (4x8-10)", "Remo con barra (4x8)", "Remo en polea baja (3x12)", "Curl de bíceps con barra (3x10)", "Curl martillo (3x12)"],
@@ -144,6 +150,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         grasa: {
             descanso: "90s", 
+            nombresDias: [
+                "Full Body Dinámico e Inferior",
+                "Cardio HIIT y Espalda",
+                "Piernas y Hombros Quema-Grasa",
+                "Circuito Metabólico Global",
+                "Core y Resistencia Explosiva"
+            ],
             dias: [
                 ["Sentadillas con salto (4x15)", "Flexiones de pecho (4x12)", "Zancadas dinámicas (3x12 por pierna)", "Plancha abdominal (3x 45 seg)"],
                 ["Burpees (4x10)", "Remo con mancuernas (4x12)", "Mountain Climbers (3x 45 seg)", "Elevaciones de piernas (3x15)"],
@@ -154,6 +167,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         fuerza: {
             descanso: "180s", 
+            nombresDias: [
+                "Sentadilla y Banca Pesada",
+                "Peso muerto y Militar Estricto",
+                "Banca Auxiliar y Brazos Pesados",
+                "Sentadilla Frontal y Prensa",
+                "Peso muerto Rumano y Tracción"
+            ],
             dias: [
                 ["Sentadilla trasera pesada (5x5)", "Press de banca pesado (5x5)", "Dominadas lastradas (4x6)", "Face pulls (3x12)"],
                 ["Peso muerto convencional (4x3-5)", "Press militar estricto (4x5)", "Remo pendlay (4x6)", "Encogimientos con barra (3x8)"],
@@ -164,6 +184,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         tonificacion: {
             descanso: "60s",
+            nombresDias: [
+                "Glúteos y Tonificación Superior",
+                "Brazos Definidos y Pierna Estática",
+                "Espalda, Pecho y Core",
+                "Piernas en Sumo y Pantorrillas",
+                "Caminata Activa y Hombros Livianos"
+            ],
             dias: [
                 ["Sentadillas libres (4x12)", "Puente de glúteos (4x15)", "Press de hombros con mancuernas (3x12)", "Plancha abdominal (3x 45 seg)"],
                 ["Zancadas estáticas (3x12)", "Curl de bíceps (3x12)", "Patada de tríceps (3x12)", "Elevaciones laterales (3x15)"],
@@ -174,6 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         resistencia: {
             descanso: "30s",
+            nombresDias: [
+                "Circuito Aeróbico 1",
+                "Circuito Aeróbico 2",
+                "Circuito Mixto con Salto",
+                "Circuito Piernas y Flexiones",
+                "Cardio Global de Alta Intensidad"
+            ],
             dias: [
                 ["Circuito: Sentadillas + Jumping Jacks + Skipping (4 rondas de 45s c/u)", "Flexiones continuas (3x máx)", "Abdominales dinámicos (3x 1 min)"],
                 ["Circuito: Zancadas + Mountain Climbers + Burpees (4 rondas de 45s c/u)", "Plancha frontal con movimiento (3x 45s)"],
@@ -184,6 +218,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         movilidad: {
             descanso: "30s",
+            nombresDias: [
+                "Movilidad de Tren Superior y Cadena Posterior",
+                "Movilidad de Caderas y Columna",
+                "Estiramiento de Psoas y Tronco",
+                "Movilidad Escapular y Sentadillas",
+                "Estiramientos Globales y Respiración"
+            ],
             dias: [
                 ["Movilidad articular de hombros y cuello (3 series)", "Rotaciones torácicas en suelo (3x10)", "Sentadilla profunda asistida (3x 45s)", "Estiramiento de cadena posterior (3x 45s)"],
                 ["Apertura de caderas en posición de lagartija (3x10)", "Gato-Vaca para columna (3x15)", "Movilidad de muñecas y tobillos (3 series)"],
@@ -194,6 +235,13 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         calistenia: {
             descanso: "90s",
+            nombresDias: [
+                "Tracción y Dominadas",
+                "Empuje y Fondos en Paralelas",
+                "Tirón Supino y Hombros en Pica",
+                "Piernas Unilaterales y Core",
+                "Progresiones Avanzadas y Hollow Body"
+            ],
             dias: [
                 ["Dominadas estrictas (4x max)", "Flexiones diamante (4x12)", "Australian pull-ups (4x12)", "Plancha abdominal (3x 1 min)"],
                 ["Fondos en paralelas (4x8-10)", "Flexiones declinadas (4x12)", "Elevaciones de piernas colgado (3x10)", "Sentadillas pistol asistidas (3x8)"],
@@ -274,8 +322,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
             rutinaActualData = { peso, altura, edad, objetivo, dias: diasSeleccionados, nivel: nivelExperiencia };
             
-            // Cada vez que el usuario hace click en generar rutina, el botón por defecto será "Guardar en favoritos"
-            // (a menos que haya venido explícitamente desde el botón de cargar favorito)
             if (!esRutinaFavoritaCargada) {
                 esRutinaFavoritaCargada = false;
             }
@@ -336,10 +382,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 for(let i = 0; i < diasSeleccionados; i++) {
                     const ejerciciosDelDia = datosPlan.dias[i % datosPlan.dias.length];
+                    const nombreDiaPersonalizado = datosPlan.nombresDias[i % datosPlan.nombresDias.length];
                     
                     htmlContenido += `
                         <div class="dia-card">
-                            <h4>Día ${i + 1}: Fuerza y Rendimiento - Bloque ${i + 1}</h4>
+                            <h4>Día ${i + 1}: ${nombreDiaPersonalizado}</h4>
                             <div style="display: flex; flex-direction: column; gap: 8px;">
                     `;
 
