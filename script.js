@@ -65,20 +65,29 @@ document.addEventListener('DOMContentLoaded', () => {
         const guardada = localStorage.getItem('rutina_favorita');
         if (guardada && seccionFavorito) {
             seccionFavorito.classList.remove('oculto');
+            seccionFavorito.style.display = 'block';
         } else if (seccionFavorito) {
             seccionFavorito.classList.add('oculto');
+            seccionFavorito.style.display = 'none';
         }
     }
     verificarFavoritoGuardado();
 
     function actualizarBotonFavoritoUI() {
         if (!btnGuardarFavorito) return;
+        
+        // Si se cargó desde favoritos, mostramos el botón como eliminar y visible en resultados
         if (esRutinaFavoritaCargada) {
             btnGuardarFavorito.textContent = '🗑️ Eliminar favorita';
             btnGuardarFavorito.classList.add('btn-modo-eliminar');
+            btnGuardarFavorito.classList.remove('oculto');
+            btnGuardarFavorito.style.display = 'inline-block';
         } else {
+            // Si viene de generar rutina nueva, mostramos guardar
             btnGuardarFavorito.textContent = '⭐ Guardar en favoritos';
             btnGuardarFavorito.classList.remove('btn-modo-eliminar');
+            btnGuardarFavorito.classList.remove('oculto');
+            btnGuardarFavorito.style.display = 'inline-block';
         }
     }
 
@@ -87,9 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (esRutinaFavoritaCargada) {
                 localStorage.removeItem('rutina_favorita');
                 esRutinaFavoritaCargada = false;
-                actualizarBotonFavoritoUI();
-                verificarFavoritoGuardado();
                 alert('Rutina eliminada de favoritos.');
+                // Al eliminar, regresamos al formulario o actualizamos estado
+                resultadoContainer.classList.add('oculto');
+                formRutina.style.display = 'block';
+                verificarFavoritoGuardado();
             } else {
                 if (rutinaActualData) {
                     localStorage.setItem('rutina_favorita', JSON.stringify(rutinaActualData));
@@ -114,6 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if(guardada.nivel && document.getElementById('nivel')) {
                     document.getElementById('nivel').value = guardada.nivel;
                 }
+                
+                // Marcamos que esta rutina proviene de favoritos cargados
                 esRutinaFavoritaCargada = true;
                 formRutina.dispatchEvent(new Event('submit'));
             }
@@ -258,14 +271,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
             rutinaActualData = { peso, altura, edad, objetivo, dias: diasSeleccionados, nivel: nivelExperiencia };
             
-            const guardadaCheck = JSON.parse(localStorage.getItem('rutina_favorita'));
-            if (guardadaCheck && guardadaCheck.objetivo === objetivo && guardadaCheck.dias === diasSeleccionados) {
-                esRutinaFavoritaCargada = true;
+            // Si el evento no vino de cargar favorito explícitamente, determinamos si coincide con uno guardado o es nuevo
+            if (!esRutinaFavoritaCargada) {
+                const guardadaCheck = JSON.parse(localStorage.getItem('rutina_favorita'));
+                // Si hay una favorita guardada pero se generan datos nuevos distintos, no se marca como favorita cargada por defecto
+                if (guardadaCheck && guardadaCheck.objetivo === objetivo && guardadaCheck.dias === diasSeleccionados && guardadaCheck.peso === peso) {
+                    esRutinaFavoritaCargada = true;
+                } else {
+                    esRutinaFavoritaCargada = false;
+                }
             }
+
             actualizarBotonFavoritoUI();
 
             formRutina.style.display = 'none';
-            if (seccionFavorito) seccionFavorito.style.display = 'none';
+            if (seccionFavorito) {
+                seccionFavorito.classList.add('oculto');
+                seccionFavorito.style.display = 'none';
+            }
             resultadoContainer.classList.remove('oculto');
 
             const objetivoSelect = document.getElementById('objetivo');
