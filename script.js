@@ -193,6 +193,22 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- DESCARGAR PDF AUTOMÁTICO ---
+    const btnDescargarPdf = document.getElementById('btn-descargar-pdf');
+    if (btnDescargarPdf) {
+        btnDescargarPdf.addEventListener('click', () => {
+            const elemento = document.getElementById('resultado-container');
+            const opciones = {
+                margin:       10,
+                filename:     'mi-rutina-entrenamiento.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(elemento).set(opciones).save();
+        });
+    }
+
     // --- BASE DE DATOS DE EJERCICIOS Y NOMBRES DE LOS DÍAS ---
     const baseEjercicios = {
         musculo: {
@@ -409,7 +425,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 botonesTimer.forEach(btn => {
                     btn.addEventListener('click', () => {
-                        // Limpiamos los segundos del texto (ej. "180s" -> 180)
                         let segundosTotales = parseInt(tiempoDescansoFinal) || 90;
                         let textoOriginal = btn.textContent;
                         btn.disabled = true;
