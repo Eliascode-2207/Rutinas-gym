@@ -584,7 +584,9 @@ body:not(.dark-mode) #cronometro-box {
 
 .btn-close-timer:hover {
     opacity: 1;
-}:root {
+}
+
+:root {
     --bg-color: #f8fafc;
     --card-bg: #ffffff;
     --text-color: #1e293b;
@@ -977,3 +979,17 @@ header p {
     100% { transform: scale(1.02); }
 }
 
+/* --- MEJORA DE AMPLIITUD EN PANTALLAS PEQUEÑAS (CELULARES) --- */
+@media (max-width: 600px) {
+    body {
+        padding: 4px 2px;
+    }
+    .main-wrapper, .container {
+        padding: 4px;
+        max-width: 100%;
+    }
+    .card, .form-card, .dia-card, .nutricion-card {
+        padding: 16px 12px;
+        border-radius: 10px;
+    }
+}
