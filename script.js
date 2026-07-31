@@ -123,6 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     document.getElementById('nivel').value = guardada.nivel;
                 }
                 
+                // Al cargar la favorita activamos el estado de eliminación en el botón
                 esRutinaFavoritaCargada = true;
                 formRutina.dispatchEvent(new Event('submit'));
             }
@@ -273,13 +274,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
             rutinaActualData = { peso, altura, edad, objetivo, dias: diasSeleccionados, nivel: nivelExperiencia };
             
+            // Cada vez que el usuario hace click en generar rutina, el botón por defecto será "Guardar en favoritos"
+            // (a menos que haya venido explícitamente desde el botón de cargar favorito)
             if (!esRutinaFavoritaCargada) {
-                const guardadaCheck = JSON.parse(localStorage.getItem('rutina_favorita'));
-                if (guardadaCheck && guardadaCheck.objetivo === objetivo && guardadaCheck.dias === diasSeleccionados && guardadaCheck.peso === peso) {
-                    esRutinaFavoritaCargada = true;
-                } else {
-                    esRutinaFavoritaCargada = false;
-                }
+                esRutinaFavoritaCargada = false;
             }
 
             actualizarBotonFavoritoUI();
@@ -305,8 +303,6 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (imc >= 30) clasificacionImc = "Obesidad";
 
             tituloPlan.textContent = `Plan: ${textoObjetivo}`;
-            
-            // Subtítulo con altura incluida correctamente:
             subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | Nivel: ${textoNivel} | IMC: ${imc} (${clasificacionImc}) | ${diasSeleccionados} Días/sem`;
 
             let tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5; 
