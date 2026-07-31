@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 localStorage.setItem('dias_entrenados', JSON.stringify(diasEntrenados));
                 renderizarCalendario();
-                renderizarHistorial(); // Sincroniza visualmente con el historial
+                renderizarHistorial();
             });
 
             gridCalendario.appendChild(celda);
@@ -70,7 +70,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         let htmlHistorial = '';
-        // Mostramos del más reciente al más antiguo
         historial.slice().reverse().forEach(sesion => {
             htmlHistorial += `
                 <div style="background: var(--serie-bg, #f1f5f9); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--serie-border, #cbd5e1); display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem;">
@@ -83,15 +82,13 @@ document.addEventListener('DOMContentLoaded', () => {
         listaHistorialContainer.innerHTML = htmlHistorial;
     }
 
-    // Ejecutamos al cargar la página para mostrar lo guardado
     renderizarHistorial();
 
     if (btnFinalizarRutina) {
         btnFinalizarRutina.addEventListener('click', () => {
-            const fechaHoy = new Date().toISOString().split('T')[0]; // Formato YYYY-MM-DD
+            const fechaHoy = new Date().toISOString().split('T')[0];
             let historial = JSON.parse(localStorage.getItem('historial_entrenamientos')) || [];
 
-            // Evitamos duplicar si ya registró el día de hoy
             const yaRegistrado = historial.some(s => s.fecha === fechaHoy);
             if (yaRegistrado) {
                 alert('¡Ya registraste un entrenamiento para el día de hoy! 🚀');
@@ -109,7 +106,6 @@ document.addEventListener('DOMContentLoaded', () => {
             historial.push(nuevaSesion);
             localStorage.setItem('historial_entrenamientos', JSON.stringify(historial));
 
-            // Sincronizamos con el calendario de rachas
             let diasEntrenados = JSON.parse(localStorage.getItem('dias_entrenados')) || [];
             if (!diasEntrenados.includes(fechaHoy)) {
                 diasEntrenados.push(fechaHoy);
@@ -406,6 +402,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 listaRutinas.innerHTML = htmlContenido;
+
+                // --- LÓGICA DEL CRONÓMETRO DE DESCANSO ---
+                const botonesTimer = listaRutinas.querySelectorAll('.btn-timer');
+                let intervaloActual = null;
+
+                botonesTimer.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        let segundosTotales = parseInt(tiempoDescansoFinal) || 90;
+                        let textoOriginal = btn.textContent;
+                        btn.disabled = true;
+
+                        const ejercicioItem = btn.closest('.ejercicio-item');
+                        const checkbox = ejercicioItem.querySelector('.check-ejercicio');
+                        if (checkbox) checkbox.checked = true;
+
+                        let avisoExistente = ejercicioItem.querySelector('.alerta-descanso-terminado');
+                        if (avisoExistente) avisoExistente.remove();
+
+                        if (intervaloActual) clearInterval(intervaloActual);
+
+                        intervaloActual = setInterval(() => {
+                            let min = Math.floor(segundosTotales / 60);
+                            let seg = segundosTotales % 60;
+                            btn.textContent = `${min}:${seg < 10 ? '0' : ''}${seg}`;
+
+                            if (segundosTotales <= 0) {
+                                clearInterval(intervaloActual);
+                                btn.textContent = textoOriginal;
+                                btn.disabled = false;
+
+                                const aviso = document.createElement('div');
+                                aviso.className = 'alerta-descanso-terminado';
+                                aviso.style.width = '100%';
+                                aviso.style.color = '#22c55e';
+                                aviso.style.fontWeight = 'bold';
+                                aviso.style.fontSize = '0.8rem';
+                                aviso.style.marginTop = '4px';
+                                aviso.textContent = '🔥 ¡Tiempo terminado! ¡A darle con todo!';
+                                ejercicioItem.appendChild(aviso);
+
+                                setTimeout(() => {
+                                    if (aviso) aviso.remove();
+                                }, 4000);
+                            }
+                            segundosTotales--;
+                        }, 1000);
+                    });
+                });
 
             }, 200);
         });
