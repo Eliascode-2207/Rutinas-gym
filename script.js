@@ -211,8 +211,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const objetivoSelect = document.getElementById('objetivo');
             const textoObjetivo = objetivoSelect.options[objetivoSelect.selectedIndex].text;
 
+            // CÁLCULO DEL IMC
+            const alturaMetros = altura / 100;
+            const imc = (peso / (alturaMetros * alturaMetros)).toFixed(1);
+            let clasificacionImc = "Peso normal";
+            if (imc < 18.5) clasificacionImc = "Bajo peso";
+            else if (imc >= 25 && imc < 30) clasificacionImc = "Sobrepeso";
+            else if (imc >= 30) clasificacionImc = "Obesidad";
+
             tituloPlan.textContent = `Plan: ${textoObjetivo}`;
-            subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | ${diasSeleccionados} Días por semana`;
+            subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | IMC: ${imc} (${clasificacionImc}) | ${diasSeleccionados} Días por semana`;
 
             // CÁLCULO DE MACROS
             let tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5; 
@@ -231,9 +239,9 @@ document.addEventListener('DOMContentLoaded', () => {
             listaRutinas.innerHTML = `<p style="text-align: center; padding: 10px;">Generando tu plan personalizado...</p>`;
             
             setTimeout(() => {
-                // Tarjeta de Nutrición SIN BORDE
+                // Tarjeta de Nutrición SIN BORDE (con clase especial)
                 let htmlContenido = `
-                    <div class="dia-card">
+                    <div class="dia-card tarjeta-nutricion">
                         <h4 style="color: var(--primary, #38bdf8); margin-bottom: 12px;">🥗 Tu Meta Nutricional Diaria</h4>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px;">
                             <div class="ejercicio-item" style="margin:0;">🔥 <strong>Calorías:</strong> ~${caloriasObjetivo} kcal</div>
