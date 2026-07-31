@@ -110,14 +110,12 @@ document.addEventListener('DOMContentLoaded', () => {
     if (btnGuardarFavorito) {
         btnGuardarFavorito.addEventListener('click', () => {
             if (esRutinaFavoritaCargada) {
-                // Eliminar de favoritos
                 localStorage.removeItem('rutina_favorita');
                 esRutinaFavoritaCargada = false;
                 actualizarBotonFavoritoUI();
                 verificarFavoritoGuardado();
                 alert('Rutina eliminada de favoritos.');
             } else {
-                // Guardar en favoritos
                 if (rutinaActualData) {
                     localStorage.setItem('rutina_favorita', JSON.stringify(rutinaActualData));
                     esRutinaFavoritaCargada = true;
@@ -138,6 +136,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('edad').value = guardada.edad;
                 document.getElementById('objetivo').value = guardada.objetivo;
                 document.getElementById('dias').value = guardada.dias;
+                if(guardada.nivel && document.getElementById('nivel')) {
+                    document.getElementById('nivel').value = guardada.nivel;
+                }
                 esRutinaFavoritaCargada = true;
                 formRutina.dispatchEvent(new Event('submit'));
             }
@@ -218,6 +219,56 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // --- DICCIONARIO DE SUSTITUTOS ---
+    const sustitutosEjercicios = {
+        "Press de Banca plano (4x8-10)": ["Press con mancuernas plano (4x8-10)", "Flexiones con peso (4xMAX)", "Press en máquina (4x10)"],
+        "Aperturas con mancuernas (3x12)": ["Cruce de poleas (3x12)", "Aperturas en máquina contractor (3x12)", "Flexiones abiertas (3xMAX)"],
+        "Press inclinado con mancuernas (4x10)": ["Press inclinado con barra (4x8-10)", "Press en máquina inclinada (4x10)", "Flexiones declinadas (4x12)"],
+        "Cruce de poleas (3x12)": ["Aperturas con mancuernas (3x12)", "Contractor de pecho (3x12)", "Flexiones en paralelas (3xMAX)"],
+        "Flexiones de pecho (4x12)": ["Press declinado con mancuernas (4x10)", "Aperturas en polea (3x12)", "Fondos en máquina (3x12)"],
+        "Dominadas o Jalón al pecho (4x8-10)": ["Remo en polea baja (4x10)", "Dominadas asistidas (4x8)", "Remo con mancuerna (3x10)"],
+        "Remo con barra (4x8)": ["Remo con mancuerna a una mano (4x10)", "Remo en polea baja (4x10)", "Remo en punta con barra (4x8)"],
+        "Remo en polea baja (3x12)": ["Remo al pecho en máquina (3x12)", "Jalón al pecho agarre neutro (3x12)", "Remo con mancuernas (3x12)"],
+        "Dominadas estrictas (4x max)": ["Jalón al pecho pesado (4x10)", "Remo invertido en barra (4x12)", "Dominadas asistidas (4x8)"],
+        "Sentadilla libre (4x8)": ["Prensa de pierna (4x10)", "Sentadilla Goblet con mancuerna (4x12)", "Zancadas con barra (3x10)"],
+        "Prensa de pierna (4x10)": ["Sentadilla libre (4x8)", "Sentadilla Búlgara (3x10)", "Zancadas estáticas (3x12)"],
+        "Extensiones de cuádriceps (3x12)": ["Zancadas caminando (3x12)", "Sentadilla Sissy (3x10)", "Prensa de piernas pies bajos (3x12)"],
+        "Curl femoral tumbado (3x12)": ["Curl femoral sentado (3x12)", "Peso muerto rumano (4x10)", "Curl femoral con mancuerna (3x12)"],
+        "Elevación de talones (4x15)": ["Elevación de talones sentado (4x15)", "Elevación en prensa (4x15)", "Elevación de pantorrilla a una pierna (3x20)"],
+        "Peso muerto rumano (4x8)": ["Hip thrust (4x10)", "Curl femoral tumbado (3x12)", "Buenos días con barra (3x10)"],
+        "Hip thrust (4x10)": ["Peso muerto rumano (4x8)", "Puente de glúteos en suelo (4x15)", "Prensa de pierna pies altos (4x10)"],
+        "Press militar con barra (4x8)": ["Press con mancuernas sentado (4x8-10)", "Press Arnold (3x10)", "Press en máquina para hombros (4x10)"],
+        "Elevaciones laterales (4x12)": ["Elevaciones laterales en polea (3x12)", "Elevaciones laterales con bandas (3x15)", "Remo al mentón (3x10)"],
+        "Extensiones de tríceps (3x12)": ["Press francés con barra Z (3x10)", "Fondos en paralelas (3x10)", "Extensiones en polea alta con cuerda (3x12)"],
+        "Curl de bíceps con barra (3x10)": ["Curl con mancuernas alterno (3x12)", "Curl en banco Scott (3x10)", "Curl martillo con mancuernas (3x12)"],
+        "Curl martillo (3x12)": ["Curl con barra Z (3x10)", "Curl concentrado (3x12)", "Curl en polea baja (3x12)"],
+        "Sentadillas con salto (4x15)": ["Zancadas con salto (3x12)", "Burpees (3x10)", "Sentadillas libres rápidas (4x20)"],
+        "Burpees (4x10)": ["Jumping Jacks (4x 1 min)", "Mountain Climbers (4x 45 seg)", "Thrusters con peso liviano (4x10)"],
+        "Plancha abdominal (3x 45 seg)": ["Plancha lateral (3x 30 seg c/u)", "Abdominales crunch (3x20)", "Elevación de piernas colgado (3x12)"]
+    };
+
+    // Función global para intercambiar ejercicio
+    window.cambiarEjercicio = function(btnElemento) {
+        const itemEjercicio = btnElemento.closest('.ejercicio-item');
+        const spanNombre = itemEjercicio.querySelector('.nombre-ejercicio');
+        if (!spanNombre) return;
+
+        let textoActualCompleto = spanNombre.textContent.replace('•', '').trim();
+        let alternativas = sustitutosEjercicios[textoActualCompleto];
+
+        if (!alternativas || alternativas.length === 0) {
+            alert("No hay alternativas directas configuradas para este ejercicio.");
+            return;
+        }
+
+        let nuevaAlternativa = alternativas[0];
+        
+        sustitutosEjercicios[textoActualCompleto] = alternativas.slice(1);
+        sustitutosEjercicios[textoActualCompleto].push(textoActualCompleto);
+
+        spanNombre.textContent = `• ${nuevaAlternativa}`;
+    };
+
     // --- GENERADOR ---
     if (formRutina) {
         formRutina.addEventListener('submit', (e) => {
@@ -228,10 +279,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const edad = parseInt(document.getElementById('edad').value);
             const objetivo = document.getElementById('objetivo').value;
             const diasSeleccionados = parseInt(document.getElementById('dias').value);
+            const nivelExperiencia = document.getElementById('nivel') ? document.getElementById('nivel').value : 'intermedio';
 
-            rutinaActualData = { peso, altura, edad, objetivo, dias: diasSeleccionados };
+            rutinaActualData = { peso, altura, edad, objetivo, dias: diasSeleccionados, nivel: nivelExperiencia };
             
-            // Verificar si esta rutina coincide con la guardada en favoritos
             const guardadaCheck = JSON.parse(localStorage.getItem('rutina_favorita'));
             if (guardadaCheck && guardadaCheck.objetivo === objetivo && guardadaCheck.dias === diasSeleccionados) {
                 esRutinaFavoritaCargada = true;
@@ -245,7 +296,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const objetivoSelect = document.getElementById('objetivo');
             const textoObjetivo = objetivoSelect.options[objetivoSelect.selectedIndex].text;
 
-            // CÁLCULO DEL IMC
+            const nivelSelect = document.getElementById('nivel');
+            const textoNivel = nivelSelect ? nivelSelect.options[nivelSelect.selectedIndex].text : 'Intermedio';
+
             const alturaMetros = altura / 100;
             const imc = (peso / (alturaMetros * alturaMetros)).toFixed(1);
             let clasificacionImc = "Peso normal";
@@ -254,9 +307,8 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (imc >= 30) clasificacionImc = "Obesidad";
 
             tituloPlan.textContent = `Plan: ${textoObjetivo}`;
-            subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | IMC: ${imc} (${clasificacionImc}) | ${diasSeleccionados} Días por semana`;
+            subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Nivel: ${textoNivel} | IMC: ${imc} (${clasificacionImc}) | ${diasSeleccionados} Días/sem`;
 
-            // CÁLCULO DE MACROS
             let tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5; 
             let factorActividad = diasSeleccionados >= 5 ? 1.725 : (diasSeleccionados >= 3 ? 1.55 : 1.375);
             let caloriasObjetivo = Math.round(tmb * factorActividad);
@@ -270,10 +322,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const datosPlan = baseEjercicios[objetivo] || baseEjercicios['musculo'];
             
+            // Ajustar tiempo de descanso según el nivel seleccionado
+            let tiempoDescansoFinal = datosPlan.descanso;
+            if (nivelExperiencia === 'principiante') {
+                tiempoDescansoFinal = "90s";
+            } else if (nivelExperiencia === 'avanzado' && objetivo === 'fuerza') {
+                tiempoDescansoFinal = "180s";
+            }
+            
             listaRutinas.innerHTML = `<p style="text-align: center; padding: 10px;">Generando tu plan personalizado...</p>`;
             
             setTimeout(() => {
-                // Tarjeta de Nutrición
                 let htmlContenido = `
                     <div class="dia-card tarjeta-nutricion">
                         <h4 style="color: var(--primary, #38bdf8); margin-bottom: 12px;">🥗 Tu Meta Nutricional Diaria</h4>
@@ -297,10 +356,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     ejerciciosDelDia.forEach(ejercicio => {
                         htmlContenido += `
-                            <div class="ejercicio-item" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
-                                <span style="flex: 1; min-width: 180px;">• ${ejercicio}</span>
+                            <div class="ejercicio-item" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                                <span class="nombre-ejercicio" style="flex: 1; min-width: 180px;">• ${ejercicio}</span>
                                 <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
-                                    <button class="btn-timer" style="background: var(--primary, #38bdf8); color: #0b131e; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">⏱️ ${datosPlan.descanso}</button>
+                                    <button onclick="cambiarEjercicio(this)" class="btn-secundario" style="padding: 4px 8px; font-size: 0.75rem; cursor: pointer;" title="Cambiar ejercicio">🔄 Cambiar</button>
+                                    <button class="btn-timer" style="background: var(--primary, #38bdf8); color: #0b131e; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">⏱️ ${tiempoDescansoFinal}</button>
                                     <input type="checkbox" class="check-ejercicio" style="width: 18px; height: 18px; cursor: pointer;">
                                 </div>
                             </div>
@@ -315,52 +375,65 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 listaRutinas.innerHTML = htmlContenido;
 
-                // ACTIVAR CRONÓMETROS INDIVIDUALES (CHULEAR AUTOMÁTICAMENTE Y AVISO GRANDE)
+                // ACTIVAR CRONÓMETROS (CON BARRA FLOTANTE SUPERIOR)
+                const barraGlobal = document.getElementById('barra-cronometro-global');
+                const textoGlobal = document.getElementById('tiempo-global-texto');
+                let intervaloGlobal = null;
+
                 const botonesTimer = listaRutinas.querySelectorAll('.btn-timer');
                 botonesTimer.forEach(btn => {
                     btn.addEventListener('click', () => {
-                        let segundosTotales = parseInt(datosPlan.descanso) || 90;
+                        let segundosTotales = parseInt(tiempoDescansoFinal) || 90;
                         let textoOriginal = btn.textContent;
                         btn.disabled = true;
 
                         const ejercicioItem = btn.closest('.ejercicio-item');
                         
-                        // Chulear automáticamente el checkbox del ejercicio actual
                         const checkbox = ejercicioItem.querySelector('.check-ejercicio');
-                        if (checkbox) {
-                            checkbox.checked = true;
-                        }
+                        if (checkbox) checkbox.checked = true;
 
-                        // Limpiar alerta previa si existe
                         let alertaExistente = ejercicioItem.querySelector('.alerta-descanso-terminado');
                         if (alertaExistente) alertaExistente.remove();
 
-                        let intervalo = setInterval(() => {
+                        if (barraGlobal) {
+                            barraGlobal.style.background = 'linear-gradient(135deg, #0ea5e9, #2563eb)';
+                            barraGlobal.classList.add('activo');
+                        }
+
+                        if (intervaloGlobal) clearInterval(intervaloGlobal);
+
+                        intervaloGlobal = setInterval(() => {
                             let min = Math.floor(segundosTotales / 60);
                             let seg = segundosTotales % 60;
-                            btn.textContent = `${min}:${seg < 10 ? '0' : ''}${seg}`;
+                            let tiempoFormateado = `${min}:${seg < 10 ? '0' : ''}${seg}`;
+                            
+                            btn.textContent = tiempoFormateado;
+                            if (textoGlobal) textoGlobal.textContent = tiempoFormateado;
 
                             if (segundosTotales <= 0) {
-                                clearInterval(intervalo);
+                                clearInterval(intervaloGlobal);
                                 btn.textContent = textoOriginal;
                                 btn.disabled = false;
 
-                                // CREAR EL AVISO GRANDE Y LLAMATIVO
+                                if (barraGlobal) {
+                                    barraGlobal.style.background = 'linear-gradient(135deg, #22c55e, #16a34a)';
+                                    if (textoGlobal) textoGlobal.textContent = '¡TIEMPO TERMINADO! 💪';
+                                }
+
                                 const aviso = document.createElement('div');
                                 aviso.className = 'alerta-descanso-terminado';
                                 aviso.style.width = '100%';
                                 aviso.innerHTML = '🔥 ¡TIEMPO TERMINADO! ¡A darle con todo a la siguiente serie! 💪';
-                                
                                 ejercicioItem.appendChild(aviso);
 
-                                // Desvanecer y remover el aviso automáticamente después de 6 segundos
                                 setTimeout(() => {
+                                    if (barraGlobal) barraGlobal.classList.remove('activo');
                                     if (aviso) {
                                         aviso.style.transition = 'opacity 0.5s ease';
                                         aviso.style.opacity = '0';
                                         setTimeout(() => aviso.remove(), 500);
                                     }
-                                }, 6000);
+                                }, 5000);
                             }
                             segundosTotales--;
                         }, 1000);
