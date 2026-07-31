@@ -273,7 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
             listaRutinas.innerHTML = `<p style="text-align: center; padding: 10px;">Generando tu plan personalizado...</p>`;
             
             setTimeout(() => {
-                // Tarjeta de Nutrición SIN BORDE (con clase especial)
+                // Tarjeta de Nutrición
                 let htmlContenido = `
                     <div class="dia-card tarjeta-nutricion">
                         <h4 style="color: var(--primary, #38bdf8); margin-bottom: 12px;">🥗 Tu Meta Nutricional Diaria</h4>
@@ -297,11 +297,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                     ejerciciosDelDia.forEach(ejercicio => {
                         htmlContenido += `
-                            <div class="ejercicio-item" style="display: flex; justify-content: space-between; align-items: center;">
-                                <span>• ${ejercicio}</span>
-                                <div style="display: flex; align-items: center; gap: 8px;">
+                            <div class="ejercicio-item" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                                <span style="flex: 1; min-width: 180px;">• ${ejercicio}</span>
+                                <div style="display: flex; align-items: center; gap: 8px; margin-left: auto;">
                                     <button class="btn-timer" style="background: var(--primary, #38bdf8); color: #0b131e; border: none; padding: 4px 10px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 0.8rem;">⏱️ ${datosPlan.descanso}</button>
-                                    <input type="checkbox" style="width: 18px; height: 18px; cursor: pointer;">
+                                    <input type="checkbox" class="check-ejercicio" style="width: 18px; height: 18px; cursor: pointer;">
                                 </div>
                             </div>
                         `;
@@ -315,13 +315,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 listaRutinas.innerHTML = htmlContenido;
 
-                // ACTIVAR CRONÓMETROS INDIVIDUALES
+                // ACTIVAR CRONÓMETROS INDIVIDUALES (CHULEAR AUTOMÁTICAMENTE Y AVISO GRANDE)
                 const botonesTimer = listaRutinas.querySelectorAll('.btn-timer');
                 botonesTimer.forEach(btn => {
                     btn.addEventListener('click', () => {
                         let segundosTotales = parseInt(datosPlan.descanso) || 90;
                         let textoOriginal = btn.textContent;
                         btn.disabled = true;
+
+                        const ejercicioItem = btn.closest('.ejercicio-item');
+                        
+                        // Chulear automáticamente el checkbox del ejercicio actual
+                        const checkbox = ejercicioItem.querySelector('.check-ejercicio');
+                        if (checkbox) {
+                            checkbox.checked = true;
+                        }
+
+                        // Limpiar alerta previa si existe
+                        let alertaExistente = ejercicioItem.querySelector('.alerta-descanso-terminado');
+                        if (alertaExistente) alertaExistente.remove();
 
                         let intervalo = setInterval(() => {
                             let min = Math.floor(segundosTotales / 60);
@@ -332,6 +344,23 @@ document.addEventListener('DOMContentLoaded', () => {
                                 clearInterval(intervalo);
                                 btn.textContent = textoOriginal;
                                 btn.disabled = false;
+
+                                // CREAR EL AVISO GRANDE Y LLAMATIVO
+                                const aviso = document.createElement('div');
+                                aviso.className = 'alerta-descanso-terminado';
+                                aviso.style.width = '100%';
+                                aviso.innerHTML = '🔥 ¡TIEMPO TERMINADO! ¡A darle con todo a la siguiente serie! 💪';
+                                
+                                ejercicioItem.appendChild(aviso);
+
+                                // Desvanecer y remover el aviso automáticamente después de 6 segundos
+                                setTimeout(() => {
+                                    if (aviso) {
+                                        aviso.style.transition = 'opacity 0.5s ease';
+                                        aviso.style.opacity = '0';
+                                        setTimeout(() => aviso.remove(), 500);
+                                    }
+                                }, 6000);
                             }
                             segundosTotales--;
                         }, 1000);
