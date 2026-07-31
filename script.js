@@ -129,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- BASE DE DATOS DE EJERCICIOS (Tiempos actualizados) ---
+    // --- BASE DE DATOS DE EJERCICIOS ---
     const baseEjercicios = {
         musculo: {
             descanso: "180s", 
@@ -231,16 +231,13 @@ document.addEventListener('DOMContentLoaded', () => {
         "Plancha abdominal (3x 45 seg)": ["Plancha lateral (3x 30 seg c/u)", "Abdominales crunch (3x20)", "Elevación de piernas colgado (3x12)"]
     };
 
-    // Mapeo dinámico para recordar el ciclo de cambios por cada elemento en pantalla sin perder el hilo original
     const historialCambiosDOM = new WeakMap();
 
-    // MEJORA: Función global robusta para intercambiar y re-intercambiar ejercicios infinitamente en bucle
     window.cambiarEjercicio = function(btnElemento) {
         const itemEjercicio = btnElemento.closest('.ejercicio-item');
         const spanNombre = itemEjercicio.querySelector('.nombre-ejercicio');
         if (!spanNombre) return;
 
-        // Si es la primera vez que se interactúa con este elemento visual específico, guardamos su estado inicial
         if (!historialCambiosDOM.has(itemEjercicio)) {
             const textoActualCompleto = spanNombre.textContent.replace('•', '').trim();
             let listaAlternativas = sustitutosEjercicios[textoActualCompleto];
@@ -250,7 +247,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // Creamos una lista completa que incluye el original y todas sus opciones rotativas
             historialCambiosDOM.set(itemEjercicio, {
                 original: textoActualCompleto,
                 ciclo: [textoActualCompleto, ...listaAlternativas],
@@ -259,11 +255,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const datosItem = historialCambiosDOM.get(itemEjercicio);
-        
-        // Avanzamos al siguiente índice del ciclo de forma circular
         datosItem.indiceActual = (datosItem.indiceActual + 1) % datosItem.ciclo.length;
-        
-        // Aplicamos el texto correspondiente al ejercicio actual
         spanNombre.textContent = `• ${datosItem.ciclo[datosItem.indiceActual]}`;
     };
 
@@ -313,6 +305,8 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (imc >= 30) clasificacionImc = "Obesidad";
 
             tituloPlan.textContent = `Plan: ${textoObjetivo}`;
+            
+            // Subtítulo con altura incluida correctamente:
             subPlan.textContent = `Edad: ${edad} años | Peso: ${peso}kg | Altura: ${altura}cm | Nivel: ${textoNivel} | IMC: ${imc} (${clasificacionImc}) | ${diasSeleccionados} Días/sem`;
 
             let tmb = (10 * peso) + (6.25 * altura) - (5 * edad) + 5; 
@@ -327,7 +321,6 @@ document.addEventListener('DOMContentLoaded', () => {
             let gramosCarbos = Math.round((caloriasObjetivo - (gramosProteina * 4) - (gramosGrasa * 9)) / 4);
 
             const datosPlan = baseEjercicios[objetivo] || baseEjercicios['musculo'];
-            
             let tiempoDescansoFinal = datosPlan.descanso;
             
             listaRutinas.innerHTML = `<p style="text-align: center; padding: 10px;">Generando tu plan personalizado...</p>`;
@@ -387,7 +380,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         btn.disabled = true;
 
                         const ejercicioItem = btn.closest('.ejercicio-item');
-                        
                         const checkbox = ejercicioItem.querySelector('.check-ejercicio');
                         if (checkbox) checkbox.checked = true;
 
